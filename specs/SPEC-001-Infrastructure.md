@@ -55,7 +55,15 @@ As a developer, I need a solid foundation with configured tools so that I can bu
 - [ ] Install **Playwright** and init E2E project structure.
 - [ ] Configure GitHub Actions CI to run tests on PR.
 
+### 1.7 Hosting & Deployment
+
+- [ ] Create `Dockerfile` for production build (Multi-stage).
+- [ ] Create `docker-compose.yml` for easy orchestration.
+- [ ] Configure `nginx.conf` as a reverse proxy for the container.
+- [ ] Ensure the container handles `SPA` routing (Client-side routing fallback).
+
 ## Technical Notes
 
 - **Stack**: React, Vite, TS, Supabase, Zustand.
+- **Hosting**: Self-hosted (Docker + Nginx).
 - **Offline Strategy**: Service Worker for assets; LocalStorage for data (initially).

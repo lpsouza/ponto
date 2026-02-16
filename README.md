@@ -20,7 +20,7 @@ A **Time Balance Tracker** designed for professionals in strictly **Trust Positi
 - **Styling**: Modern CSS (Vanilla).
 - **Backend/Database**: Supabase (PostgreSQL + Auth).
 - **Testing**: Vitest (Unit) + Playwright (E2E).
-- **Hosting**: Vercel/Netlify.
+- **Hosting**: Self-hosted (Docker).
 
 ## Development Methodology
 
