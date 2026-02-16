@@ -5,7 +5,15 @@
 }
 
 .trackerSection {
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.balanceSection {
+    margin-bottom: 1.5rem;
+}
+
+.reportSection {
+    margin-bottom: 1.5rem;
 }
 
 .header {
@@ -13,6 +21,36 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.companySelect {
+    padding: 0.5rem 0.75rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+    font-size: 0.875rem;
+    cursor: pointer;
+    min-width: 160px;
+    transition: border-color 0.2s ease;
+}
+
+.companySelect:focus {
+    outline: none;
+    border-color: var(--color-ring);
+}
+
+.companySelect:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .title {

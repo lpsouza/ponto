@@ -12,7 +12,7 @@
 | **SPEC-001** | Infrastructure | ✅ Done |
 | **SPEC-002** | Auth & Companies | ✅ Done |
 | **SPEC-003** | Time Clock | ✅ Done |
-| **SPEC-004** | Dashboard | 📝 Draft |
+| **SPEC-004** | Dashboard | ✅ Done |
 
 ## About the Project
 
