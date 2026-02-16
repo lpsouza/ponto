@@ -1,5 +1,19 @@
 # Ponto Livre (PWA)
 
+> 🚧 **Project Under Construction** 🚧
+>
+> This project is currently in active development and is **not yet functionality complete**.
+> Features are being implemented according to the specifications listed below.
+
+## Project Status
+
+| Spec ID | Feature | Status |
+| :--- | :--- | :--- |
+| **SPEC-001** | Infrastructure | ✅ Done |
+| **SPEC-002** | Authentication | ✅ Done |
+| **SPEC-003** | Time Clock | 📝 Draft |
+| **SPEC-004** | Dashboard | 📝 Draft |
+
 ## About the Project
 
 A **Time Balance Tracker** designed for professionals in strictly **Trust Positions (Cargo de Confiança)** who do not officially clock in. The system serves as a personal tool to manage work-life balance, helping to prevent burnout (overworking) or under-delivery.

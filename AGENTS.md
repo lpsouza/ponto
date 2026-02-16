@@ -59,6 +59,7 @@ It helps users track their "real" hours to avoid **overworking (Burnout)** or **
      - `Todo`: Ready for development.
      - `Doing`: Currently in development.
      - `Done`: Completed.
+   - **MANDATORY**: Update the `README.md` file status table whenever a SPEC is completed or its status changes.
 4. **Updates**: If technical details change, update the SPEC file to reflect reality.
 
 ## Development Workflow
