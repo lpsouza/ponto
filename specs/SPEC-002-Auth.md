@@ -1,7 +1,7 @@
 ---
 id: SPEC-002
 feature: Authentication & User Profile
-status: Draft
+status: Done
 priority: Critical
 ---
 
@@ -16,28 +16,28 @@ As a Freelancer/Multi-job professional, I want to create multiple "Companies" (e
 
 ### 2.1 User Registration & Login
 
-- [ ] **Google OAuth Only**: Users log in using their Google account (Personal or Workspace).
-- [ ] **Auto-Registration**: First-time login automatically creates `auth.users` record.
-- [ ] **Profile Sync**: Automatically fetch `full_name` and `avatar_url` from Google metadata on first login.
-- [ ] Creates a record in `public.profiles` linked to the user if not exists.
+- [x] **Google OAuth Only**: Users log in using their Google account (Personal or Workspace).
+- [x] **Auto-Registration**: First-time login automatically creates `auth.users` record.
+- [x] **Profile Sync**: Automatically fetch `full_name` and `avatar_url` from Google metadata on first login.
+- [x] **Creates a record in `public.profiles` linked to the user if not exists.**
 
 ### 2.2 Workspace / Company Management (Multi-Context)
 
 This feature allows the user to manage multiple professional "contexts" or "companies" under a single login.
 
-- [ ] **Manage Companies (CRUD)**:
+- [x] **Manage Companies (CRUD)**:
     - **Create**: Add a new workspace (e.g., "Google (CLT)", "Freelance Client A").
     - **Edit**: Update settings like "Daily Hours Target" (e.g., 8h for CLT, 4h for Part-time) or "Timezone".
     - **Delete**: Archive or remove a workspace (and its associated records, or keep them archived).
-- [ ] **Context Switching**:
+- [x] **Context Switching**:
     - Global selector (in Navbar/Sidebar) to switch the "Active Company".
     - Storing the `active_company_id` in the user's `profile` preferences ensures the app remembers the last context on reload.
     - All dashboard metrics and time records are filtered by the currently Active Company.
 
 ### 2.3 Row Level Security (RLS)
 
-- [ ] **Profiles Table**: Users can read/update their own profile.
-- [ ] **Companies Table**: Users can CRUD companies where `user_id` matches their ID.
+- [x] **Profiles Table**: Users can read/update their own profile.
+- [x] **Companies Table**: Users can CRUD companies where `user_id` matches their ID.
 - [ ] **TimeRecords Table**: Users can CRUD records where `user_id` matches their ID (and implicitly linked to their companies).
 
 ### 2.4 Data Model

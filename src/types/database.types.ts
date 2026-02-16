@@ -1,3 +1,4 @@
+
 export type Json =
     | string
     | number
@@ -9,16 +10,61 @@ export type Json =
 export interface Database {
     public: {
         Tables: {
-            // Add tables here as we create them
+            profiles: {
+                Row: {
+                    id: string
+                    full_name: string | null
+                    avatar_url: string | null
+                    preferences: Json | null
+                    updated_at: string | null
+                }
+                Insert: {
+                    id: string
+                    full_name?: string | null
+                    avatar_url?: string | null
+                    preferences?: Json | null
+                    updated_at?: string | null
+                }
+                Update: {
+                    id?: string
+                    full_name?: string | null
+                    avatar_url?: string | null
+                    preferences?: Json | null
+                    updated_at?: string | null
+                }
+            }
+            companies: {
+                Row: {
+                    id: string
+                    user_id: string
+                    name: string
+                    settings: Json | null
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    user_id: string
+                    name: string
+                    settings?: Json | null
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    user_id?: string
+                    name?: string
+                    settings?: Json | null
+                    created_at?: string
+                }
+            }
         }
         Views: {
-            // Add views here
+            [_ in never]: never
         }
         Functions: {
-            // Add functions here
+            [_ in never]: never
         }
         Enums: {
-            // Add enums here
+            [_ in never]: never
         }
     }
 }
