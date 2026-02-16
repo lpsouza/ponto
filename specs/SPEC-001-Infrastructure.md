@@ -22,7 +22,7 @@ As a developer, I need a solid foundation with configured tools so that I can bu
 
 - [ ] Install `vite-plugin-pwa`.
 - [ ] Configure `manifest.webmanifest`:
-    - Name: "Ponto Virtual"
+    - Name: "Ponto Livre"
     - Short Name: "Ponto"
     - Theme Color: `#000000` (Dark mode compliant)
     - Icons: Standard set (192, 512).

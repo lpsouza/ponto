@@ -1,4 +1,4 @@
-# Ponto Virtual - Agent Guidelines
+# Ponto Livre - Agent Guidelines
 
 > **CRITICAL**: Read this file first before starting any task.
 
