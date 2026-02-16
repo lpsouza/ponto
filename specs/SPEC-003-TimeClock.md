@@ -35,7 +35,7 @@ As a Trust Position Professional, I want to easily record when I start and stop 
 
 - `id`: uuid
 - `user_id`: uuid (FK)
-- `company_id`: uuid (FK)
+- `company_id`: uuid (FK -> companies.id)
 - `timestamp`: timestamptz
 - `type`: text ('start', 'pause', 'resume', 'finish')
 - `is_manual_entry`: boolean

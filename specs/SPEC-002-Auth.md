@@ -1,61 +1,69 @@
 ---
 id: SPEC-002
-feature: Authentication & Multi-Tenancy
+feature: Authentication & User Profile
 status: Draft
 priority: Critical
 ---
 
-# Feature 2: Authentication & Multi-Tenancy
+# Feature 2: Authentication & User Profile
 
 ## User Story
 
-As a Company Owner, I want to register my company and invite employees so they can track their time securely.
-As an Employee, I want to log in to my specific company's workspace without seeing data from others.
+As a Professional, I want to register and log in so I can track my work hours.
+As a Freelancer/Multi-job professional, I want to create multiple "Companies" (e.g., one for CLT, one for MEI) to keep my records separated.
 
 ## Requirements
 
-### 2.1 Company Registration (Tenant Creation)
+### 2.1 User Registration & Login
 
-- [ ] Sign Up form for Company Owners.
-- [ ] Creates a record in `auth.users` (Supabase).
-- [ ] Creates a record in `public.companies` linked to the user.
+- [ ] **Google OAuth Only**: Users log in using their Google account (Personal or Workspace).
+- [ ] **Auto-Registration**: First-time login automatically creates `auth.users` record.
+- [ ] **Profile Sync**: Automatically fetch `full_name` and `avatar_url` from Google metadata on first login.
+- [ ] Creates a record in `public.profiles` linked to the user if not exists.
 
-### 2.2 Employee Login
+### 2.2 Workspace / Company Management (Multi-Context)
 
-- [ ] Login screen (Email/Password).
-- [ ] Validates credentials via Supabase Auth.
-- [ ] Fetches User Profile (`public.profiles`) to determine `company_id`.
+This feature allows the user to manage multiple professional "contexts" or "companies" under a single login.
+
+- [ ] **Manage Companies (CRUD)**:
+    - **Create**: Add a new workspace (e.g., "Google (CLT)", "Freelance Client A").
+    - **Edit**: Update settings like "Daily Hours Target" (e.g., 8h for CLT, 4h for Part-time) or "Timezone".
+    - **Delete**: Archive or remove a workspace (and its associated records, or keep them archived).
+- [ ] **Context Switching**:
+    - Global selector (in Navbar/Sidebar) to switch the "Active Company".
+    - Storing the `active_company_id` in the user's `profile` preferences ensures the app remembers the last context on reload.
+    - All dashboard metrics and time records are filtered by the currently Active Company.
 
 ### 2.3 Row Level Security (RLS)
 
-- [ ] **Companies Table**: Visible only to the owner (admin).
-- [ ] **Profiles Table**: Users can read their own profile. Admins can read/write profiles with same `company_id`.
-- [ ] **TimeRecords Table**: Users can insert/read their own records. Admins can read all records with same `company_id`.
+- [ ] **Profiles Table**: Users can read/update their own profile.
+- [ ] **Companies Table**: Users can CRUD companies where `user_id` matches their ID.
+- [ ] **TimeRecords Table**: Users can CRUD records where `user_id` matches their ID (and implicitly linked to their companies).
 
 ### 2.4 Data Model
-
-**Table: companies**
-
-- `id`: uuid (PK)
-- `name`: text
-- `clt_rules_config`: jsonb (default rules)
 
 **Table: profiles**
 
 - `id`: uuid (PK, refers to auth.users)
-- `role`: text ('admin' | 'employee')
-- `company_id`: uuid (FK -> companies.id)
 - `full_name`: text
+- `avatar_url`: text
+- `preferences`: jsonb (active_company_id, theme)
+
+**Table: companies**
+
+- `id`: uuid (PK)
+- `user_id`: uuid (FK -> auth.users)
+- `name`: text
+- `settings`: jsonb (default_hours, timezone)
 
 ## Testing
 
-- **Unit**: Verify `company_id` extraction from profile data.
+- **Unit**: Verify profile creation on `auth.users` insert trigger (if used) or client-side flow.
 - **E2E**:
-    - **Scenario**: Use sign up flow -> Create Company -> Redirect to Dashboard.
-    - **Scenario**: Employee login -> Redirect to Clock Page.
-    - **Scenario**: Invalid credentials -> Show error toast.
+    - **Scenario**: Click "Login with Google" -> Redirect to Dashboard.
+    - **Scenario**: Logout -> Redirect to Login Page.
 
 ## Technical Notes
 
-- Use Supabase Auth Helpers.
-- **Security**: Never blindly trust `company_id` from the client in Insert/Update operations if possible (use database triggers or RLS defaults where applicable).
+- **Supabase Auth**: Enable Google Provider only. Disable Email/Password provider.
+- **UX**: Simple "Continue with Google" button. No registration forms needed.
