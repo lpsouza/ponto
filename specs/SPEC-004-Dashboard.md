@@ -1,0 +1,43 @@
+---
+id: SPEC-004
+feature: Dashboard & Reports
+status: Draft
+priority: Medium
+---
+
+# Feature 4: Balance Dashboard
+
+## User Story
+
+As a user, I want to visualize my Time Balance (Bank) to know if I'm overworking or have free time, helping me manage my routine.
+
+## Requirements
+
+### 4.1 Daily Balance
+
+- [ ] **Timeline**: Visual bar showing Work vs Breaks.
+- [ ] **Metric**: "Balance Today" (e.g., +0:30h or -1:00h against strict 8h target).
+- [ ] **Burnout Warning**: Visual alert if working > 10h/day frequently.
+
+### 4.2 Reports
+
+- [ ] **Monthly Heatmap**: Visual grid showing intensity of work days.
+- [ ] **Net Balance**: Total accumulated hours (+/-) in the period.
+- [ ] **Export**: Ability to export to simple CSV for personal control.
+
+### 4.3 Admin/Team View (Optional)
+
+- [ ] If used by a team lead, see "Team Health" (Avg hours), NOT policing individual punch times.
+
+## Testing
+
+- **Unit**:
+    - Validate calculation of "Total Worked Time" with various time ranges.
+    - Test break deduction logic (CLT rules).
+- **E2E**:
+    - **Scenario**: Login as Admin -> View Employees list.
+
+## Technical Notes
+
+- **Calculations**: Done on frontend for immediate feedback, but validated via SQL functions/Views for reports.
+- **Performance**: Pagination for History View (don't load infinite records).
