@@ -15,52 +15,52 @@ As a developer, I need a solid foundation with configured tools so that I can bu
 
 ### 1.1 Project Initialization
 
-- [ ] Initialize **Vite** project with **React** and **TypeScript**.
-- [ ] Clean up default Vite boilerplate.
+- [x] Initialize **Vite** project with **React** and **TypeScript**.
+- [x] Clean up default Vite boilerplate.
 
 ### 1.2 PWA Configuration
 
-- [ ] Install `vite-plugin-pwa`.
-- [ ] Configure `manifest.webmanifest`:
+- [x] Install `vite-plugin-pwa`.
+- [x] Configure `manifest.webmanifest`:
     - Name: "Ponto Livre"
     - Short Name: "Ponto"
     - Theme Color: `#000000` (Dark mode compliant)
     - Icons: Standard set (192, 512).
-- [ ] Enable Service Worker for offline caching of static assets.
+- [x] Enable Service Worker for offline caching of static assets.
 
 ### 1.3 Database & Backend
 
-- [ ] Install `@supabase/supabase-js`.
-- [ ] Create `src/lib/supabase.ts` client.
-- [ ] Define global TypeScript types for Database entities.
+- [x] Install `@supabase/supabase-js`.
+- [x] Create `src/lib/supabase.ts` client.
+- [x] Define global TypeScript types for Database entities.
 
 ### 1.4 Global Styling
 
-- [ ] Reset CSS (Modern reset).
-- [ ] Define **CSS Variables** for the Design System:
+- [x] Reset CSS (Modern reset).
+- [x] Define **CSS Variables** for the Design System:
     - Colors (Primary, Secondary, Background, Surface, Error).
     - Spacing.
     - Typography.
-- [ ] Install **Lucide React** for icons.
+- [x] Install **Lucide React** for icons.
 
 ### 1.5 State Management
 
-- [ ] Install `zustand`.
-- [ ] Create `useStore` hook with `persist` middleware enabled.
+- [x] Install `zustand`.
+- [x] Create `useStore` hook with `persist` middleware enabled.
 
 ### 1.6 Testing Infrastructure
 
-- [ ] Install **Vitest** and **React Testing Library**.
-- [ ] Configure `setupTests.ts`.
-- [ ] Install **Playwright** and init E2E project structure.
-- [ ] Configure GitHub Actions CI to run tests on PR.
+- [x] Install **Vitest** and **React Testing Library**.
+- [x] Configure `setupTests.ts`.
+- [x] Install **Playwright** and init E2E project structure.
+- [x] Configure GitHub Actions CI to run tests on PR.
 
 ### 1.7 Hosting & Deployment
 
-- [ ] Create `Dockerfile` for production build (Multi-stage).
-- [ ] Create `docker-compose.yml` for easy orchestration.
-- [ ] Configure `nginx.conf` as a reverse proxy for the container.
-- [ ] Ensure the container handles `SPA` routing (Client-side routing fallback).
+- [x] Create `Dockerfile` for production build (Multi-stage).
+- [x] Create `docker-compose.yml` for easy orchestration.
+- [x] Configure `nginx.conf` as a reverse proxy for the container.
+- [x] Ensure the container handles `SPA` routing (Client-side routing fallback).
 
 ## Technical Notes
 
