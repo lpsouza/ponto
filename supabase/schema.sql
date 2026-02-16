@@ -49,3 +49,36 @@ create policy "Users can update their own companies."
 create policy "Users can delete their own companies."
   on public.companies for delete
   using ( auth.uid() = user_id );
+
+-- Create time_records table
+create table if not exists public.time_records (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users not null,
+  company_id uuid references public.companies(id) not null,
+  timestamp timestamptz not null default now(),
+  type text not null check (type in ('start', 'pause', 'resume', 'finish')),
+  is_manual_entry boolean default false,
+  notes text,
+  location text,
+  device_time timestamptz,
+  created_at timestamptz default now()
+);
+
+-- Access policies for time_records
+alter table public.time_records enable row level security;
+
+create policy "Users can view their own time records."
+  on public.time_records for select
+  using ( auth.uid() = user_id );
+
+create policy "Users can insert their own time records."
+  on public.time_records for insert
+  with check ( auth.uid() = user_id );
+
+create policy "Users can update their own time records."
+  on public.time_records for update
+  using ( auth.uid() = user_id );
+
+create policy "Users can delete their own time records."
+  on public.time_records for delete
+  using ( auth.uid() = user_id );

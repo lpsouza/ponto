@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { useAuth } from '../auth/AuthProvider'
-import { useCompanies, InsertCompany } from '../companies/hooks'
+import { useCompanies } from '../companies/hooks'
 import { useActiveCompany } from '../companies/useActiveCompany'
+import { TimeTracker } from '../timeclock/TimeTracker'
 import styles from './DashboardPage.module.css'
 
 export const DashboardPage = () => {
@@ -30,17 +31,28 @@ export const DashboardPage = () => {
         }
     }
 
+    const activeCompanyName = companies.find(c => c.id === activeCompanyId)?.name
+
     return (
         <div className={styles.container}>
             <header className={styles.header}>
                 <div>
                     <h1 className={styles.title}>Olá, {profile?.full_name?.split(' ')[0]}</h1>
-                    <p style={{ color: 'var(--color-text-muted)' }}>Gerencie seus contextos de trabalho</p>
+                    <p style={{ color: 'var(--color-text-muted)' }}>
+                        {activeCompanyName
+                            ? `Contexto: ${activeCompanyName}`
+                            : 'Selecione um contexto para começar'}
+                    </p>
                 </div>
                 <button onClick={signOut} className={`${styles.button} ${styles.buttonOutline}`}>
                     Sair
                 </button>
             </header>
+
+            {/* Time Tracker Section */}
+            <section className={styles.trackerSection}>
+                <TimeTracker companyId={activeCompanyId} />
+            </section>
 
             <section className={styles.section}>
                 <div className={styles.sectionHeader}>
@@ -82,7 +94,6 @@ export const DashboardPage = () => {
                             >
                                 <div>
                                     <strong style={{ display: 'block', fontSize: '1.1rem' }}>{company.name}</strong>
-                                    {/* Hide settings for now if empty or default */}
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                                     {activeCompanyId === company.id ? (
@@ -113,3 +124,4 @@ export const DashboardPage = () => {
         </div>
     )
 }
+

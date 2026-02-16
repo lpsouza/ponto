@@ -10,8 +10,8 @@
 | Spec ID | Feature | Status |
 | :--- | :--- | :--- |
 | **SPEC-001** | Infrastructure | ✅ Done |
-| **SPEC-002** | Authentication | ✅ Done |
-| **SPEC-003** | Time Clock | 📝 Draft |
+| **SPEC-002** | Auth & Companies | ✅ Done |
+| **SPEC-003** | Time Clock | ✅ Done |
 | **SPEC-004** | Dashboard | 📝 Draft |
 
 ## About the Project
@@ -24,11 +24,11 @@ A **Time Balance Tracker** designed for professionals in strictly **Trust Positi
 
 - **Personal Balance**: Tracks "Real Hours" vs "Expected Hours" to show a running balance.
 - **Flexibility**: Allows manual editing and adjustments (trust-based system).
-- **Multi-Tenant**: Supports multiple users/companies (e.g., for teams wanting to track their own balance).
+- **Multi-Company Context**: Supports multiple professional contexts (e.g., CLT job and Freelance projects) under a single profile.
 - **PWA**: Works offline and installs on devices for quick access.
 - **Reports**: Focus on "Healthy Routine" stats rather than legal timesheets.
 
-## Technologies (Suggested)
+## Tech Stack
 
 - **Frontend**: React + Vite + TypeScript.
 - **Styling**: Modern CSS (Vanilla).

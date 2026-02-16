@@ -4,6 +4,10 @@
     margin: 0 auto;
 }
 
+.trackerSection {
+    margin-bottom: 2rem;
+}
+
 .header {
     display: flex;
     justify-content: space-between;

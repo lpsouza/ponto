@@ -1,7 +1,7 @@
 ---
 id: SPEC-003
 feature: Time Clock (Core)
-status: Draft
+status: Done
 priority: Critical
 ---
 
@@ -15,19 +15,19 @@ As a Trust Position Professional, I want to easily record when I start and stop 
 
 ### 3.1 Tracker Interface
 
-- [ ] Display **Current Time** and **Accumulated Time Today**.
-- [ ] Action buttons: "Start Work", "Pause/Break", "Resume", "Finish Day".
-- [ ] **Manual Adjustment**: Allow clicking on the time display to manually edit the timestamp (e.g., "I actually started 15 mins ago").
+- [x] Display **Current Time** and **Accumulated Time Today**.
+- [x] Action buttons: "Start Work", "Pause/Break", "Resume", "Finish Day".
+- [x] **Manual Adjustment**: Allow clicking on the time display to manually edit the timestamp (e.g., "I actually started 15 mins ago").
 
 ### 3.2 Context & Location
 
-- [ ] Optional: Capture location for personal context (e.g., "Worked from Home" vs "Office").
-- [ ] **No blocking**: Never block an action based on location.
+- [x] Optional: Capture location for personal context (e.g., "Worked from Home" vs "Office").
+- [x] **No blocking**: Never block an action based on location.
 
 ### 3.3 Offline Persistence & Sync
 
-- [ ] **Strategy**: Optimistic UI. Save locally, sync when possible.
-- [ ] **Conflict Resolution**: Last edit wins (User trusted).
+- [x] **Strategy**: Optimistic UI. Save locally, sync when possible.
+- [x] **Conflict Resolution**: Last edit wins (User trusted).
 
 ### 3.4 Data Model
 
