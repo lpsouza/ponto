@@ -1,7 +1,7 @@
 ---
 id: SPEC-001
 feature: Project Foundation & Infrastructure
-status: Draft
+status: Done
 priority: High
 ---
 

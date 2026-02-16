@@ -54,6 +54,11 @@ It helps users track their "real" hours to avoid **overworking (Burnout)** or **
    - Read the specific SPEC file (e.g., `specs/SPEC-001-Infrastructure.md`).
    - Implement the requirements one by one.
    - **MANDATORY**: Update the SPEC file (change `[ ]` to `[x]`) **IMMEDIATELY** after finishing each item. This is critical for tracking progress.
+   - **MANDATORY**: Update the SPEC metadata (`status`) according to the workflow:
+     - `Draft`: Planning phase.
+     - `Todo`: Ready for development.
+     - `Doing`: Currently in development.
+     - `Done`: Completed.
 4. **Updates**: If technical details change, update the SPEC file to reflect reality.
 
 ## Development Workflow
