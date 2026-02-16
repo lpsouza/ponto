@@ -40,6 +40,10 @@ It helps users track their "real" hours to avoid **overworking (Burnout)** or **
    - Design must be "Mobile First".
    - Aesthetics: Modern, clean, professional. Dark mode support is highly recommended.
 
+6. **Git & Version Control**:
+   - **Commit Messages**: Must be single-line in English.
+   - **Spec Reference**: If the commit relates to a spec, MUST include the Spec ID (e.g., `[SPEC-001] Initial setup`).
+
 ## Development Methodology: Spec Driven Development (SDD)
 
 **Crucial**: We follow a strict Spec-Driven Development process.
@@ -49,7 +53,7 @@ It helps users track their "real" hours to avoid **overworking (Burnout)** or **
 3. **Workflow**:
    - Read the specific SPEC file (e.g., `specs/SPEC-001-Infrastructure.md`).
    - Implement the requirements one by one.
-   - **Mark as Completed**: Update the SPEC file (change `[ ]` to `[x]`) as you finish items.
+   - **MANDATORY**: Update the SPEC file (change `[ ]` to `[x]`) **IMMEDIATELY** after finishing each item. This is critical for tracking progress.
 4. **Updates**: If technical details change, update the SPEC file to reflect reality.
 
 ## Development Workflow
