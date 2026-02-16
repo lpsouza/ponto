@@ -2,6 +2,8 @@
   "name": "ponto-livre",
   "private": true,
   "version": "0.0.0",
+  "license": "MIT",
+  "author": "Luiz Pereira de Souza Filho",
   "type": "module",
   "scripts": {
     "dev": "vite",
