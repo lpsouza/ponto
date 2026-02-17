@@ -39,9 +39,16 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:5173';
         console.log('⏳ Aguardando token no localStorage...');
 
         // Esperar até que o token do Supabase apareça no localStorage
-        await page.waitForFunction(() => {
-            return Object.keys(localStorage).some(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
-        }, null, { timeout: 10000 });
+        try {
+            await page.waitForFunction(() => {
+                return Object.keys(localStorage).some(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
+            }, null, { timeout: 30000 });
+        } catch (e) {
+            console.error('❌ Timeout aguardando token localStorage. Chaves encontradas:');
+            const keys = await page.evaluate(() => Object.keys(localStorage));
+            console.error(keys);
+            throw e;
+        }
 
         console.log('✅ Token de autenticação encontrado!');
 
