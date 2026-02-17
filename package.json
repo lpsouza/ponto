@@ -12,7 +12,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "test:e2e:auth": "node scripts/setup-auth.js"
+    "test:e2e:auth": "node scripts/setup-auth.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
