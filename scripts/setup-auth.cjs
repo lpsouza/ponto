@@ -35,7 +35,18 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:5173';
         // Aguardar redirecionamento para o dashboard (indica login bem sucedido)
         await page.waitForURL('**/dashboard', { timeout: 0 }); // 0 = tempo infinito
 
-        console.log('✅ Login detectado com sucesso!');
+        console.log('✅ Redirecionamento para dashboard detectado!');
+        console.log('⏳ Aguardando token no localStorage...');
+
+        // Esperar até que o token do Supabase apareça no localStorage
+        await page.waitForFunction(() => {
+            return Object.keys(localStorage).some(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
+        }, null, { timeout: 10000 });
+
+        console.log('✅ Token de autenticação encontrado!');
+
+        // Pequena pausa extra para garantir persistência
+        await page.waitForTimeout(1000);
 
         // Garantir diretório existe
         const dir = path.dirname(AUTH_FILE);

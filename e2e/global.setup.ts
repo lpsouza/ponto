@@ -38,8 +38,16 @@ setup('authenticate', async ({ page }) => {
     if (!accessToken || !refreshToken || !userId) {
         // Check if we already have a valid auth state from manual login
         if (fs.existsSync(authFile)) {
-            console.log(`✅ Using existing auth state from ${authFile}`);
-            return;
+            try {
+                const data = JSON.parse(fs.readFileSync(authFile, 'utf-8'));
+                if (data.origins && data.origins.length > 0) {
+                    console.log(`✅ Using existing auth state from ${authFile}`);
+                    return;
+                }
+                console.warn(`⚠️  Existing auth file at ${authFile} is empty or invalid. Ignoring.`);
+            } catch (e) {
+                console.warn(`⚠️  Error reading auth file: ${e}. Ignoring.`);
+            }
         }
 
         console.warn(
