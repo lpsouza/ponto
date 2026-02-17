@@ -31,6 +31,7 @@ export function useCompanies() {
 
     useEffect(() => {
         fetchCompanies()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user])
 
     const createCompany = async (company: Omit<InsertCompany, 'user_id'>) => {
