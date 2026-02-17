@@ -36,10 +36,19 @@ setup('authenticate', async ({ page }) => {
     const userName = process.env.E2E_USER_NAME || 'E2E Test User';
 
     if (!accessToken || !refreshToken || !userId) {
+        // Check if we already have a valid auth state from manual login
+        if (fs.existsSync(authFile)) {
+            console.log(`✅ Using existing auth state from ${authFile}`);
+            return;
+        }
+
         console.warn(
-            '⚠️  E2E auth tokens not provided. Creating mock session.\n' +
-            '   For real Supabase tests, set:\n' +
-            '   E2E_SUPABASE_ACCESS_TOKEN, E2E_SUPABASE_REFRESH_TOKEN, E2E_USER_ID'
+            '⚠️  E2E auth tokens not provided and no existing auth file found.\n' +
+            '   Creating mock session (unauthenticated).\n' +
+            '   To run full tests:\n' +
+            '   1. Run "npm run test:e2e:auth" to login manually ONCE.\n' +
+            '   OR\n' +
+            '   2. Set E2E_SUPABASE_ACCESS_TOKEN, E2E_SUPABASE_REFRESH_TOKEN, E2E_USER_ID env vars.'
         );
 
         // Create a minimal mock session for testing the UI flow

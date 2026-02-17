@@ -53,7 +53,11 @@ This project follows **Spec-Driven Development (SDD)**.
 
 - **Unit Tests**: `npm run test`
 - **E2E Tests**: `npm run test:e2e`
-  - To run full authentication flows, you must provide `E2E_SUPABASE_ACCESS_TOKEN`, `E2E_SUPABASE_REFRESH_TOKEN`, and `E2E_USER_ID` in your environment (or `.env`).
+    - To run full authentication flows (Dashboard, TimeClock):
+        1. Run `npm run test:e2e:auth` (Opens a browser window).
+        2. Login manually with your Google account.
+        3. Wait until you see the Dashboard.
+        4. Close the window. This saves your session for subsequent test runs.
 
 ## Project Structure
 

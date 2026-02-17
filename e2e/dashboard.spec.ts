@@ -8,9 +8,14 @@ import { test, expect } from '@playwright/test';
 
 test.describe('SPEC-004: Dashboard & Reports', () => {
     test.beforeEach(async ({ page }) => {
-        test.skip(!process.env.E2E_SUPABASE_ACCESS_TOKEN, 'E2E auth tokens not configured');
-
         await page.goto('/dashboard');
+
+        // Wait for potential redirect or load
+        await page.waitForTimeout(1000);
+
+        if (page.url().includes('/login')) {
+            test.skip(true, 'User not authenticated (redirected to login)');
+        }
     });
 
     test('company selector dropdown is visible and functional', async ({ page }) => {
