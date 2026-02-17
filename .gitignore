@@ -134,3 +134,8 @@ Desktop.ini
 *.sln
 *.sw?
 implementation_plan.md
+
+# Playwright
+e2e/.auth/
+playwright-report/
+test-results/

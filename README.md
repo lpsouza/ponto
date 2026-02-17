@@ -53,6 +53,7 @@ This project follows **Spec-Driven Development (SDD)**.
 
 - **Unit Tests**: `npm run test`
 - **E2E Tests**: `npm run test:e2e`
+  - To run full authentication flows, you must provide `E2E_SUPABASE_ACCESS_TOKEN`, `E2E_SUPABASE_REFRESH_TOKEN`, and `E2E_USER_ID` in your environment (or `.env`).
 
 ## Project Structure
 
