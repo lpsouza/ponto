@@ -1,74 +1,68 @@
-const { chromium } = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
+const readline = require('readline');
 
-// Caminho para salvar a sessão
+// Path to save the session
 const AUTH_FILE = path.join(__dirname, '../e2e/.auth/user.json');
 const BASE_URL = process.env.BASE_URL || 'http://localhost:5173';
 
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+const askQuestion = (query) => new Promise((resolve) => rl.question(query, resolve));
+
 (async () => {
-    console.log('🚀 Iniciando navegador para autenticação manual...');
-    console.log(`🌍 URL Alvo: ${BASE_URL}`);
-
-    const browser = await chromium.launch({
-        headless: false, // ABRE O NAVEGADOR VISÍVEL
-        args: ['--start-maximized'] // Abre maximizado
-    });
-    const context = await browser.newContext({ viewport: null });
-    const page = await context.newPage();
-
-    console.log('⏳ Aguardando carregamento da página...');
+    console.log('🚀 Configuração Manual de Autenticação (Estratégia: Copiar do Navegador)');
+    console.log(`🌍 URL Base: ${BASE_URL}`);
+    console.log('\nPor favor, siga estes passos:');
+    console.log('1. Abra o seu navegador padrão e faça login na aplicação em ' + BASE_URL);
+    console.log('2. Abra as Ferramentas de Desenvolvedor (F12 ou Ctrl+Shift+I)');
+    console.log('3. Vá para a aba "Application" (ou "Armazenamento") -> "Local Storage" -> ' + BASE_URL);
+    console.log('4. Encontre a chave que começa com "sb-" (ex: sb-access-token ou similar)');
+    console.log('5. Copie o nome da chave e o valor correspondente.\n');
 
     try {
-        await page.goto(BASE_URL);
-    } catch (e) {
-        console.error(`❌ Não foi possível conectar a ${BASE_URL}.`);
-        console.error('👉 Certifique-se de que o servidor de desenvolvimento está rodando ("npm run dev") em outro terminal.');
-        await browser.close();
-        process.exit(1);
-    }
+        const key = await askQuestion('📝 Cole o NOME da chave (Key): ');
+        if (!key) throw new Error('A chave não pode estar vazia.');
 
-    console.log('👉 Por favor, faça login com sua conta Google na janela aberta.');
-    console.log('👀 O script aguardará até você ser redirecionado para o "/dashboard".');
+        const value = await askQuestion('📝 Cole o VALOR da chave (Value): ');
+        if (!value) throw new Error('O valor não pode estar vazio.');
 
-    try {
-        // Aguardar redirecionamento para o dashboard (indica login bem sucedido)
-        await page.waitForURL('**/dashboard', { timeout: 0 }); // 0 = tempo infinito
+        const storageState = {
+            cookies: [],
+            origins: [
+                {
+                    origin: BASE_URL,
+                    localStorage: [
+                        {
+                            name: key.trim(),
+                            value: value.trim()
+                        }
+                    ]
+                }
+            ]
+        };
 
-        console.log('✅ Redirecionamento para dashboard detectado!');
-        console.log('⏳ Aguardando token no localStorage...');
-
-        // Esperar até que o token do Supabase apareça no localStorage
-        try {
-            await page.waitForFunction(() => {
-                return Object.keys(localStorage).some(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
-            }, null, { timeout: 30000 });
-        } catch (e) {
-            console.error('❌ Timeout aguardando token localStorage. Chaves encontradas:');
-            const keys = await page.evaluate(() => Object.keys(localStorage));
-            console.error(keys);
-            throw e;
-        }
-
-        console.log('✅ Token de autenticação encontrado!');
-
-        // Pequena pausa extra para garantir persistência
-        await page.waitForTimeout(1000);
-
-        // Garantir diretório existe
+        // Ensure directory exists
         const dir = path.dirname(AUTH_FILE);
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
 
-        // Salvar estado da sessão (cookies, localStorage, etc)
-        await context.storageState({ path: AUTH_FILE });
+        // Save session state
+        fs.writeFileSync(AUTH_FILE, JSON.stringify(storageState, null, 2));
+
+        console.log('\n---------------------------------------------------');
         console.log(`💾 Sessão salva em: ${AUTH_FILE}`);
-        console.log('🎉 Agora você pode rodar "npm run test:e2e" sem configurar variáveis de ambiente!');
+        console.log('🎉 SUCESSO! A configuração de autenticação foi atualizada.');
+        console.log('---------------------------------------------------');
+        console.log('👉 Para rodar os testes: npm run test:e2e');
 
     } catch (error) {
-        console.error('❌ Erro durante o processo de login:', error);
+        console.error('\n❌ Erro:', error.message);
     } finally {
-        await browser.close();
+        rl.close();
     }
 })();
