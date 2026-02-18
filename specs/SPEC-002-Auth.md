@@ -1,4 +1,3 @@
----
 id: SPEC-002
 feature: Authentication & User Profile
 status: Done
@@ -38,7 +37,11 @@ This feature allows the user to manage multiple professional "contexts" or "comp
 
 - [x] **Profiles Table**: Users can read/update their own profile.
 - [x] **Companies Table**: Users can CRUD companies where `user_id` matches their ID.
-- [ ] **TimeRecords Table**: Users can CRUD records where `user_id` matches their ID (and implicitly linked to their companies).
+- [x] **TimeRecords Table**: Users can CRUD records where `user_id` matches their ID (and implicitly linked to their companies).
+
+### 2.5 Session Handling
+
+- [x] **Expiration Redirect**: If the session expires or is invalidated (e.g., token revocation), the user must be automatically redirected to the Login page.
 
 ### 2.4 Data Model
 
