@@ -10,5 +10,24 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient<Database>(
     supabaseUrl || '',
-    supabaseAnonKey || ''
+    supabaseAnonKey || '',
+    {
+        auth: {
+            autoRefreshToken: true,
+            persistSession: true,
+            detectSessionInUrl: true,
+        },
+        global: {
+            // Add a fetch wrapper with timeout to prevent hanging requests
+            fetch: (url, options) => {
+                const controller = new AbortController()
+                const timeout = setTimeout(() => controller.abort(), 10000) // 10s timeout
+
+                return fetch(url, {
+                    ...options,
+                    signal: controller.signal,
+                }).finally(() => clearTimeout(timeout))
+            },
+        },
+    }
 )

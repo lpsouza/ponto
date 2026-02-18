@@ -6,6 +6,7 @@ import App from './App'
 vi.mock('./lib/supabase', () => ({
     supabase: {
         auth: {
+            getUser: () => Promise.resolve({ data: { user: null }, error: null }),
             getSession: () => Promise.resolve({ data: { session: null }, error: null }),
             onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => { } } } }),
         },

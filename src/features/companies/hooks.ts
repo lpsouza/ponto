@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { Database } from '../../types/database.types'
@@ -14,19 +13,27 @@ export function useCompanies() {
     const [loading, setLoading] = useState(true)
 
     const fetchCompanies = async () => {
-        if (!user) return
-
-        const { data, error } = await supabase
-            .from('companies')
-            .select('*')
-            .order('name')
-
-        if (error) {
-            console.error('Error fetching companies:', error)
-        } else {
-            setCompanies(data)
+        if (!user) {
+            setLoading(false)
+            return
         }
-        setLoading(false)
+
+        try {
+            const { data, error } = await supabase
+                .from('companies')
+                .select('*')
+                .order('name')
+
+            if (error) {
+                console.error('Error fetching companies:', error)
+            } else {
+                setCompanies(data)
+            }
+        } catch (e) {
+            console.error('useCompanies: Unexpected error', e)
+        } finally {
+            setLoading(false)
+        }
     }
 
     useEffect(() => {
