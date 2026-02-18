@@ -11,10 +11,20 @@ import { test, expect } from '@playwright/test';
 test.describe('SPEC-002: Authentication Flow', () => {
     test('unauthenticated user is redirected to login page', async ({ browser }) => {
         // Create a fresh context without stored auth
-        const context = await browser.newContext();
+        const context = await browser.newContext({ storageState: { cookies: [], origins: [] } });
         const page = await context.newPage();
 
+        // Listen for console logs
+        page.on('console', msg => console.log(`BROWSER LOG: ${msg.text()}`));
+
         await page.goto('/dashboard');
+
+        // Wait a bit to see logs
+        await page.waitForTimeout(2000);
+
+        // Check LocalStorage
+        const localStorageData = await page.evaluate(() => JSON.stringify(localStorage));
+        console.log('LOCAL STORAGE CONTENT:', localStorageData);
 
         // Should be redirected to login
         await expect(page).toHaveURL(/\/login/);
@@ -27,7 +37,7 @@ test.describe('SPEC-002: Authentication Flow', () => {
     });
 
     test('login page displays Google sign-in button', async ({ browser }) => {
-        const context = await browser.newContext();
+        const context = await browser.newContext({ storageState: { cookies: [], origins: [] } });
         const page = await context.newPage();
 
         await page.goto('/login');
@@ -48,8 +58,8 @@ test.describe('SPEC-002: Authentication Flow', () => {
         // This test uses the storageState from the setup
         await page.goto('/dashboard');
 
-        // Wait for potential redirect or load
-        await page.waitForTimeout(1000);
+        // Wait for loading to finish (max 10s)
+        await expect(page.getByText('Carregando...')).toBeHidden({ timeout: 10000 });
 
         if (page.url().includes('/login')) {
             test.skip(true, 'User not authenticated (redirected to login)');
@@ -58,14 +68,14 @@ test.describe('SPEC-002: Authentication Flow', () => {
 
         await expect(page).toHaveURL(/\/dashboard/);
         // The dashboard should show a greeting
-        await expect(page.locator('h1')).toContainText('Olá');
+        await expect(page.locator('h1')).toContainText('Olá', { timeout: 10000 });
     });
 
     test('logout redirects to login page', async ({ page }) => {
         await page.goto('/dashboard');
 
-        // Wait for potential redirect or load
-        await page.waitForTimeout(1000);
+        // Wait for loading to finish
+        await expect(page.getByText('Carregando...')).toBeHidden({ timeout: 10000 });
 
         if (page.url().includes('/login')) {
             test.skip(true, 'User not authenticated (redirected to login)');
