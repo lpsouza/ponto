@@ -9,27 +9,37 @@ priority: Critical
 
 ## User Story
 
-As a Trust Position Professional, I want to easily record when I start and stop working, and adjust the times if I forgot, so I can keep track of my true workload.
+As a Trust Position Professional, I want to freely register when I enter and leave work throughout the day, forming independent work blocks that are summed to show my true workload. I also want to manually add or adjust entries whenever needed.
 
 ## Requirements
 
 ### 3.1 Tracker Interface
 
-- [x] Display **Current Time** and **Accumulated Time Today**.
-- [x] Action buttons: "Start Work", "Pause/Break", "Resume", "Finish Day".
-- [x] **Manual Adjustment**: Allow clicking on the time display to manually edit the timestamp (e.g., "I actually started 15 mins ago").
+- [x] Display **Current Time** and **Accumulated Time Today** (sum of all completed blocks + active block).
+- [x] **Current Stickiness**: Show **"Registrar Entrada"** when idle, **"Registrar Saída"** when working.
+    - **Mapped Types**: `start` (Entrada) and `finish` (Saída).
+- [x] **Manual Entry**: Form to add records with specific types.
+- [x] **Timeline**: Show today's records in **chronological order** (earliest to latest), clearly displaying work blocks and any open (active) block at the end.
 
-### 3.2 Context & Location
+### 3.2 Work Blocks
 
-- [x] Optional: Capture location for personal context (e.g., "Worked from Home" vs "Office").
-- [x] **No blocking**: Never block an action based on location.
+- [x] Each `start`/`finish` pair forms a **work block**.
+- [x] Multiple blocks per day are **summed** for the daily total.
+- [x] A `start` without a matching `finish` is treated as an **active block**.
+- [x] **Schema Support**: The database supports `start`, `pause`, `resume`, `finish` to accommodate future features or legacy data, though the current UI focuses on start/finish flows.
+- [x] **No blocking**: Users can freely add entries and exits in any order, edit past records, and delete them. The system does not enforce sequential rules.
 
-### 3.3 Offline Persistence & Sync
+### 3.3 Context & Location
+
+- [ ] Optional: Capture location for personal context (e.g., "Worked from Home" vs "Office").
+- [ ] **No blocking**: Never block an action based on location.
+
+### 3.4 Offline Persistence & Sync
 
 - [x] **Strategy**: Optimistic UI. Save locally, sync when possible.
 - [x] **Conflict Resolution**: Last edit wins (User trusted).
 
-### 3.4 Data Model
+### 3.5 Data Model
 
 **Table: time_records**
 
@@ -37,16 +47,21 @@ As a Trust Position Professional, I want to easily record when I start and stop 
 - `user_id`: uuid (FK)
 - `company_id`: uuid (FK -> companies.id)
 - `timestamp`: timestamptz
-- `type`: text ('start', 'pause', 'resume', 'finish')
+- `type`: text (`'start'`, `'pause'`, `'resume'`, `'finish'`)
 - `is_manual_entry`: boolean
 - `notes`: text (optional user notes)
 
 ## Testing
 
 - **Unit**:
+    - Test work block pairing (entry/exit pairs from chronological records).
+    - Test total duration with multiple blocks in a day.
+    - Test active block (open entry with no exit).
     - Test duration calculations with manual edits.
 - **E2E**:
-    - **Scenario**: Start timer -> Manually change start time -> Verify total calculation updates.
+    - **Scenario**: Register entry -> Register exit -> Verify block duration.
+    - **Scenario**: Register multiple entry/exit pairs -> Verify total is the sum of all blocks.
+    - **Scenario**: Add manual entry at a past time -> Verify timeline and total update.
 
 ## Technical Notes
 

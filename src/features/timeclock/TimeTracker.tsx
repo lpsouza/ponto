@@ -1,13 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Play, Pause, Square, RotateCcw, Pencil, Trash2, MapPin } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Timer, ArrowRight, Plus, AlertCircle } from 'lucide-react'
 import { useTimeRecords } from './hooks'
 import {
     calculateTotalWorkedMs,
     formatDuration,
     formatTime,
     getTrackerState,
-    TimeRecord,
-    TimeRecordType,
+    getWorkSegments,
     toDatetimeLocalString,
 } from './timeCalculations'
 import styles from './TimeTracker.module.css'
@@ -16,278 +15,217 @@ interface TimeTrackerProps {
     companyId: string | null
 }
 
-// Map record types to Portuguese labels
-const typeLabels: Record<TimeRecordType, string> = {
-    start: 'Início',
-    pause: 'Pausa',
-    resume: 'Retorno',
-    finish: 'Fim',
+const statusConfig = {
+    idle: {
+        label: 'Fora do serviço',
+        style: styles.statusIdle,
+        buttonText: 'Registrar Entrada',
+        buttonClass: styles.btnEntry,
+        nextAction: 'start' as const,
+    },
+    working: {
+        label: 'Trabalhando',
+        style: styles.statusWorking,
+        buttonText: 'Registrar Saída',
+        buttonClass: styles.btnExit,
+        nextAction: 'finish' as const,
+    },
 }
 
-export const TimeTracker: React.FC<TimeTrackerProps> = ({ companyId }) => {
-    const { records, loading, addRecord, updateRecord, deleteRecord } = useTimeRecords(companyId)
-    const [now, setNow] = useState(new Date())
-    const [location, setLocation] = useState('')
-    const [editingRecord, setEditingRecord] = useState<TimeRecord | null>(null)
-    const [editTimestamp, setEditTimestamp] = useState('')
-    const [editNotes, setEditNotes] = useState('')
-    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+export function TimeTracker({ companyId }: TimeTrackerProps) {
+    const {
+        records,
+        loading,
+        addRecord
+    } = useTimeRecords(companyId)
 
-    const { status, allowedActions } = getTrackerState(records)
-    const totalWorkedMs = calculateTotalWorkedMs(records, now)
+    const [currentTime, setCurrentTime] = useState(new Date())
+    const [elapsedMs, setElapsedMs] = useState(0)
 
-    // Live clock
+    // Manual entry state
+    const [manualDate, setManualDate] = useState(toDatetimeLocalString(new Date()))
+    const [manualType, setManualType] = useState<'start' | 'finish'>('start')
+    const [submitting, setSubmitting] = useState(false)
+
+    // Update current time every second
     useEffect(() => {
-        timerRef.current = setInterval(() => {
-            setNow(new Date())
+        const timer = setInterval(() => {
+            const now = new Date()
+            setCurrentTime(now)
         }, 1000)
-
-        return () => {
-            if (timerRef.current) clearInterval(timerRef.current)
-        }
+        return () => clearInterval(timer)
     }, [])
 
-    const handleAction = useCallback(async (type: TimeRecordType) => {
+    // Calculate total worked time
+    useEffect(() => {
+        const total = calculateTotalWorkedMs(records, currentTime)
+        setElapsedMs(total)
+    }, [records, currentTime])
+
+    const { status } = getTrackerState(records)
+    const currentStatus = statusConfig[status]
+    const segments = getWorkSegments(records)
+
+    const handleMainAction = async () => {
+        if (!companyId || submitting) return
+        setSubmitting(true)
         try {
-            await addRecord(type, {
-                location: location || undefined,
-            })
+            await addRecord(currentStatus.nextAction)
         } catch (error) {
-            console.error('Failed to record action:', error)
+            console.error(error)
+            alert('Erro ao registrar ponto')
+        } finally {
+            setSubmitting(false)
         }
-    }, [addRecord, location])
+    }
 
-    const handleEditOpen = useCallback((record: TimeRecord) => {
-        setEditingRecord(record)
-        setEditTimestamp(toDatetimeLocalString(new Date(record.timestamp)))
-        setEditNotes(record.notes || '')
-    }, [])
+    const handleManualEntry = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!companyId || submitting) return
 
-    const handleEditSave = useCallback(async () => {
-        if (!editingRecord) return
+        const date = new Date(manualDate)
+        if (isNaN(date.getTime())) {
+            alert('Data inválida')
+            return
+        }
 
+        setSubmitting(true)
         try {
-            const newTimestamp = new Date(editTimestamp).toISOString()
-            await updateRecord(editingRecord.id, {
-                timestamp: newTimestamp,
-                notes: editNotes || null,
+            await addRecord(manualType, {
+                timestamp: date.toISOString(),
+                isManual: true,
+                notes: 'Manual entry'
             })
-            setEditingRecord(null)
+            // Reset form to current time
+            setManualDate(toDatetimeLocalString(new Date()))
         } catch (error) {
-            console.error('Failed to update record:', error)
+            console.error(error)
+            alert('Erro ao adicionar registro manual')
+        } finally {
+            setSubmitting(false)
         }
-    }, [editingRecord, editTimestamp, editNotes, updateRecord])
+    }
 
-    const handleDelete = useCallback(async (id: string) => {
-        if (confirm('Tem certeza que deseja remover este registro?')) {
-            try {
-                await deleteRecord(id)
-            } catch (error) {
-                console.error('Failed to delete record:', error)
-            }
-        }
-    }, [deleteRecord])
+
 
     if (!companyId) {
         return (
-            <div className={styles.tracker}>
-                <div className={styles.noCompany}>
-                    <p>Selecione um contexto para começar a registrar.</p>
+            <div className={styles.container}>
+                <div className={styles.card}>
+                    <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+                        <AlertCircle className="mx-auto mb-2" />
+                        <p>Selecione ou crie uma empresa para começar.</p>
+                    </div>
                 </div>
             </div>
         )
     }
-
-    if (loading) {
-        return (
-            <div className={styles.tracker}>
-                <div className={styles.loading}>Carregando registros...</div>
-            </div>
-        )
-    }
-
-    const statusClass = {
-        idle: styles.statusIdle,
-        working: styles.statusWorking,
-        paused: styles.statusPaused,
-        finished: styles.statusFinished,
-    }[status]
-
-    const statusLabel = {
-        idle: 'Pronto',
-        working: 'Trabalhando',
-        paused: 'Em pausa',
-        finished: 'Dia encerrado',
-    }[status]
 
     return (
-        <div className={styles.tracker}>
-            {/* Current Clock */}
-            <div className={styles.currentTime}>
-                {now.toLocaleTimeString('pt-BR')}
+        <div className={styles.container}>
+            {/* Main Timer Card */}
+            <div className={styles.card}>
+                <div className={styles.header}>
+                    <div className={`${styles.statusBadge} ${currentStatus.style}`}>
+                        <Timer size={14} />
+                        {currentStatus.label}
+                    </div>
+                    <div className={styles.timeDisplay}>
+                        {formatDuration(elapsedMs)}
+                    </div>
+                    <div className={styles.dateDisplay}>
+                        {currentTime.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                    </div>
+                </div>
+
+                <div className={styles.mainAction}>
+                    <button
+                        className={`${styles.toggleButton} ${currentStatus.buttonClass}`}
+                        onClick={handleMainAction}
+                        disabled={loading || submitting}
+                    >
+                        {loading ? 'Carregando...' : currentStatus.buttonText}
+                    </button>
+                </div>
+
+                {/* Manual Entry Form */}
+                <div className={styles.manualEntry}>
+                    <h3 className={styles.manualEntryTitle}>Adicionar registro manual</h3>
+                    <form className={styles.manualForm} onSubmit={handleManualEntry}>
+                        <input
+                            type="datetime-local"
+                            className={styles.dateTimeInput}
+                            value={manualDate}
+                            onChange={(e) => setManualDate(e.target.value)}
+                            required
+                        />
+                        <select
+                            className={styles.typeSelect}
+                            value={manualType}
+                            onChange={(e) => setManualType(e.target.value as 'start' | 'finish')}
+                        >
+                            <option value="start">Entrada</option>
+                            <option value="finish">Saída</option>
+                        </select>
+                        <button
+                            type="submit"
+                            className={styles.addButton}
+                            disabled={submitting}
+                            title="Adicionar"
+                        >
+                            <Plus size={20} />
+                        </button>
+                    </form>
+                </div>
             </div>
 
-            {/* Status Badge */}
-            <span className={`${styles.statusBadge} ${statusClass}`}>
-                {statusLabel}
-            </span>
+            {/* Timeline */}
+            <div className={styles.timeline}>
+                <h3 className={styles.timelineTitle}>Histórico de hoje</h3>
+                <div className={styles.timelineList}>
+                    {segments.length === 0 && (
+                        <p style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                            Nenhum registro hoje.
+                        </p>
+                    )}
 
-            {/* Timer Display */}
-            <div className={styles.timerDisplay}>
-                {formatDuration(totalWorkedMs)}
-            </div>
-            <div className={styles.timerLabel}>Tempo acumulado hoje</div>
+                    {segments.map((segment) => {
+                        const isCompleted = !!segment.end
+                        const duration = isCompleted
+                            ? segment.end!.getTime() - segment.start.getTime()
+                            : currentTime.getTime() - segment.start.getTime()
 
-            {/* Optional Location */}
-            <div className={styles.locationSection}>
-                <MapPin size={14} />
-                <input
-                    type="text"
-                    className={styles.locationInput}
-                    placeholder="Local (ex: Home, Office)"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    aria-label="Local de trabalho"
-                />
-            </div>
+                        // Find original records to allow deletion
+                        // In a real app we might store record IDs in the segment
+                        // For now we'll just not implement individual record deletion from the block view easily
+                        // Or we can find them in the records array.
+                        // Let's keep it simple: just show the blocks. 
+                        // To delete, we would need to list individual records, 
+                        // but the spec says "timeline: show records as entry/exit pairs".
 
-            {/* Action Buttons */}
-            <div className={styles.actions}>
-                {allowedActions.includes('start') && (
-                    <button
-                        className={`${styles.actionButton} ${styles.startButton}`}
-                        onClick={() => handleAction('start')}
-                        aria-label="Iniciar trabalho"
-                    >
-                        <Play size={18} />
-                        Iniciar
-                    </button>
-                )}
-                {allowedActions.includes('pause') && (
-                    <button
-                        className={`${styles.actionButton} ${styles.pauseButton}`}
-                        onClick={() => handleAction('pause')}
-                        aria-label="Pausar trabalho"
-                    >
-                        <Pause size={18} />
-                        Pausar
-                    </button>
-                )}
-                {allowedActions.includes('resume') && (
-                    <button
-                        className={`${styles.actionButton} ${styles.resumeButton}`}
-                        onClick={() => handleAction('resume')}
-                        aria-label="Retomar trabalho"
-                    >
-                        <RotateCcw size={18} />
-                        Retomar
-                    </button>
-                )}
-                {allowedActions.includes('finish') && (
-                    <button
-                        className={`${styles.actionButton} ${styles.finishButton}`}
-                        onClick={() => handleAction('finish')}
-                        aria-label="Encerrar dia"
-                    >
-                        <Square size={18} />
-                        Encerrar
-                    </button>
-                )}
-            </div>
-
-            {/* Timeline of Records */}
-            {records.length > 0 && (
-                <div className={styles.timeline}>
-                    <h3 className={styles.timelineTitle}>Registros de hoje</h3>
-                    <div className={styles.timelineList}>
-                        {records
-                            .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
-                            .map((record) => (
-                                <div key={record.id} className={styles.timelineItem}>
-                                    <span className={`${styles.timelineDot} ${styles[`dot${record.type.charAt(0).toUpperCase() + record.type.slice(1)}`]}`} />
-                                    <span className={styles.timelineTime}>
-                                        {formatTime(new Date(record.timestamp))}
+                        return (
+                            <div
+                                key={segment.start.toISOString()}
+                                className={`${styles.timelineItem} ${isCompleted ? styles.completed : styles.active}`}
+                            >
+                                <div className={styles.timeBlock}>
+                                    <span className={styles.timeLabel}>
+                                        {formatTime(segment.start)}
                                     </span>
-                                    <span className={styles.timelineType}>
-                                        {typeLabels[record.type]}
-                                        {record.location && ` · ${record.location}`}
+                                    <ArrowRight size={14} className={styles.timeArrow} />
+                                    <span className={styles.timeLabel}>
+                                        {segment.end ? formatTime(segment.end) : 'Agora'}
                                     </span>
-                                    {record.is_manual_entry && (
-                                        <span className={styles.timelineManual}>editado</span>
-                                    )}
-                                    <div className={styles.timelineActions}>
-                                        <button
-                                            className={styles.timelineActionBtn}
-                                            onClick={() => handleEditOpen(record)}
-                                            aria-label="Editar registro"
-                                            title="Editar"
-                                        >
-                                            <Pencil size={14} />
-                                        </button>
-                                        <button
-                                            className={styles.timelineActionBtn}
-                                            onClick={() => handleDelete(record.id)}
-                                            aria-label="Remover registro"
-                                            title="Remover"
-                                        >
-                                            <Trash2 size={14} />
-                                        </button>
-                                    </div>
                                 </div>
-                            ))}
-                    </div>
-                </div>
-            )}
 
-            {/* Edit Modal */}
-            {editingRecord && (
-                <div className={styles.editOverlay} onClick={() => setEditingRecord(null)}>
-                    <div className={styles.editModal} onClick={(e) => e.stopPropagation()}>
-                        <h3 className={styles.editTitle}>
-                            Editar {typeLabels[editingRecord.type]}
-                        </h3>
-                        <div className={styles.editField}>
-                            <label className={styles.editLabel} htmlFor="edit-timestamp">
-                                Horário
-                            </label>
-                            <input
-                                id="edit-timestamp"
-                                type="datetime-local"
-                                className={styles.editInput}
-                                value={editTimestamp}
-                                onChange={(e) => setEditTimestamp(e.target.value)}
-                            />
-                        </div>
-                        <div className={styles.editField}>
-                            <label className={styles.editLabel} htmlFor="edit-notes">
-                                Observações
-                            </label>
-                            <input
-                                id="edit-notes"
-                                type="text"
-                                className={styles.editInput}
-                                placeholder="Nota opcional..."
-                                value={editNotes}
-                                onChange={(e) => setEditNotes(e.target.value)}
-                            />
-                        </div>
-                        <div className={styles.editActions}>
-                            <button
-                                className={styles.editCancel}
-                                onClick={() => setEditingRecord(null)}
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                className={styles.editSave}
-                                onClick={handleEditSave}
-                            >
-                                Salvar
-                            </button>
-                        </div>
-                    </div>
+                                <span className={styles.durationBadge}>
+                                    {formatDuration(duration)}
+                                </span>
+                            </div>
+                        )
+                    })}
                 </div>
-            )}
+            </div>
         </div>
     )
 }

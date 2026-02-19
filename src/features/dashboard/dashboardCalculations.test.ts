@@ -95,11 +95,11 @@ describe('calculateDayWorkedMs', () => {
         expect(calculateDayWorkedMs(records)).toBe(8 * MS_PER_HOUR)
     })
 
-    it('excludes paused time', () => {
+    it('sums multiple work blocks', () => {
         const records = [
             makeRecord('start', '2026-02-16T09:00:00'),
-            makeRecord('pause', '2026-02-16T12:00:00'),
-            makeRecord('resume', '2026-02-16T13:00:00'),
+            makeRecord('finish', '2026-02-16T12:00:00'),
+            makeRecord('start', '2026-02-16T13:00:00'),
             makeRecord('finish', '2026-02-16T17:00:00'),
         ]
         // 3h + 4h = 7h
@@ -370,16 +370,16 @@ describe('company context filtering', () => {
         expect(calculateDayWorkedMs(companyBRecords)).toBe(6 * MS_PER_HOUR)
     })
 
-    it('calculates break deduction correctly per context', () => {
+    it('calculates multiple work blocks correctly per context', () => {
         const records = [
             makeRecord('start', '2026-02-16T09:00:00'),
-            makeRecord('pause', '2026-02-16T12:00:00'), // 3h
-            makeRecord('resume', '2026-02-16T13:00:00'), // 1h break
-            makeRecord('pause', '2026-02-16T15:00:00'), // 2h
-            makeRecord('resume', '2026-02-16T15:30:00'), // 30min break
-            makeRecord('finish', '2026-02-16T18:00:00'), // 2.5h
+            makeRecord('finish', '2026-02-16T12:00:00'),   // 3h
+            makeRecord('start', '2026-02-16T13:00:00'),
+            makeRecord('finish', '2026-02-16T15:00:00'),   // 2h
+            makeRecord('start', '2026-02-16T15:30:00'),
+            makeRecord('finish', '2026-02-16T18:00:00'),   // 2.5h
         ]
-        // Total worked: 3 + 2 + 2.5 = 7.5h, breaks: 1h + 0.5h = 1.5h deducted
+        // Total worked: 3 + 2 + 2.5 = 7.5h
         expect(calculateDayWorkedMs(records)).toBe(7.5 * MS_PER_HOUR)
     })
 })

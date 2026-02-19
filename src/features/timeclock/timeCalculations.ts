@@ -13,10 +13,13 @@ export interface WorkSegment {
 
 /**
  * Determines the current tracker state based on the latest record.
- * Returns the allowed next actions and the current status label.
+ * Returns the allowed next action and the current status label.
+ *
+ * - idle: No records, or the last record is an 'exit'. Next action: 'entry'.
+ * - working: The last record is an 'entry'. Next action: 'exit'.
  */
 export function getTrackerState(records: TimeRecord[]): {
-    status: 'idle' | 'working' | 'paused' | 'finished'
+    status: 'idle' | 'working'
     allowedActions: TimeRecordType[]
 } {
     if (records.length === 0) {
@@ -29,23 +32,17 @@ export function getTrackerState(records: TimeRecord[]): {
 
     const lastRecord = sorted[sorted.length - 1]
 
-    switch (lastRecord.type) {
-        case 'start':
-        case 'resume':
-            return { status: 'working', allowedActions: ['pause', 'finish'] }
-        case 'pause':
-            return { status: 'paused', allowedActions: ['resume', 'finish'] }
-        case 'finish':
-            return { status: 'finished', allowedActions: ['start'] }
-        default:
-            return { status: 'idle', allowedActions: ['start'] }
+    if (lastRecord.type === 'start' || lastRecord.type === 'resume') {
+        return { status: 'working', allowedActions: ['finish', 'pause'] }
     }
+
+    return { status: 'idle', allowedActions: ['start'] }
 }
 
 /**
  * Extracts completed and active work segments from a list of records.
- * Segments are pairs of (start/resume -> pause/finish).
- * An active segment has no end time.
+ * Segments are pairs of (entry -> exit).
+ * An active segment (entry without matching exit) has no end time.
  */
 export function getWorkSegments(records: TimeRecord[]): WorkSegment[] {
     const sorted = [...records].sort(
@@ -56,9 +53,9 @@ export function getWorkSegments(records: TimeRecord[]): WorkSegment[] {
     let currentStart: Date | null = null
 
     for (const record of sorted) {
-        if (record.type === 'start' || record.type === 'resume') {
+        if (record.type === 'start') {
             currentStart = new Date(record.timestamp)
-        } else if ((record.type === 'pause' || record.type === 'finish') && currentStart) {
+        } else if (record.type === 'finish' && currentStart) {
             segments.push({
                 start: currentStart,
                 end: new Date(record.timestamp),

@@ -101,6 +101,8 @@ export function useTimeRecords(companyId: string | null) {
 
         setRecords((prev) => [...prev, optimisticRecord])
 
+        console.log('[DEBUG] Inserting time_record:', payload);
+
         // Sync to Supabase
         const { data, error } = await supabase
             .from('time_records')

@@ -31,49 +31,49 @@ function makeRecord(
 }
 
 describe('getTrackerState', () => {
-    it('returns idle with start action when no records', () => {
+    it('returns idle with entry action when no records', () => {
         const result = getTrackerState([])
         expect(result.status).toBe('idle')
         expect(result.allowedActions).toEqual(['start'])
     })
 
-    it('returns working with pause/finish after start', () => {
+    it('returns working with exit action after entry', () => {
         const records = [makeRecord('start', '2026-02-16T09:00:00Z')]
         const result = getTrackerState(records)
         expect(result.status).toBe('working')
-        expect(result.allowedActions).toContain('pause')
-        expect(result.allowedActions).toContain('finish')
+        expect(result.allowedActions).toEqual(['finish'])
     })
 
-    it('returns paused with resume/finish after pause', () => {
+    it('returns idle with entry action after exit', () => {
         const records = [
             makeRecord('start', '2026-02-16T09:00:00Z'),
-            makeRecord('pause', '2026-02-16T12:00:00Z'),
+            makeRecord('finish', '2026-02-16T12:00:00Z'),
         ]
         const result = getTrackerState(records)
-        expect(result.status).toBe('paused')
-        expect(result.allowedActions).toContain('resume')
-        expect(result.allowedActions).toContain('finish')
+        expect(result.status).toBe('idle')
+        expect(result.allowedActions).toEqual(['start'])
     })
 
-    it('returns working after resume', () => {
+    it('returns working after multiple blocks when last is entry', () => {
         const records = [
             makeRecord('start', '2026-02-16T09:00:00Z'),
-            makeRecord('pause', '2026-02-16T12:00:00Z'),
-            makeRecord('resume', '2026-02-16T13:00:00Z'),
+            makeRecord('finish', '2026-02-16T12:00:00Z'),
+            makeRecord('start', '2026-02-16T13:00:00Z'),
         ]
         const result = getTrackerState(records)
         expect(result.status).toBe('working')
+        expect(result.allowedActions).toEqual(['finish'])
     })
 
-    it('returns finished after finish', () => {
+    it('returns idle after multiple completed blocks', () => {
         const records = [
             makeRecord('start', '2026-02-16T09:00:00Z'),
+            makeRecord('finish', '2026-02-16T12:00:00Z'),
+            makeRecord('start', '2026-02-16T13:00:00Z'),
             makeRecord('finish', '2026-02-16T18:00:00Z'),
         ]
         const result = getTrackerState(records)
-        expect(result.status).toBe('finished')
-        expect(result.allowedActions).toEqual(['start'])
+        expect(result.status).toBe('idle')
     })
 
     it('sorts by timestamp regardless of array order', () => {
@@ -82,7 +82,7 @@ describe('getTrackerState', () => {
             makeRecord('start', '2026-02-16T09:00:00Z'),
         ]
         const result = getTrackerState(records)
-        expect(result.status).toBe('finished')
+        expect(result.status).toBe('idle')
     })
 })
 
@@ -102,21 +102,26 @@ describe('getWorkSegments', () => {
         expect(segments[0].end).toEqual(new Date('2026-02-16T18:00:00Z'))
     })
 
-    it('returns multiple segments with a pause', () => {
+    it('returns multiple work blocks', () => {
         const records = [
-            makeRecord('start', '2026-02-16T09:00:00Z'),
-            makeRecord('pause', '2026-02-16T12:00:00Z'),
-            makeRecord('resume', '2026-02-16T13:00:00Z'),
+            makeRecord('start', '2026-02-16T08:00:00Z'),
+            makeRecord('finish', '2026-02-16T12:00:00Z'),
+            makeRecord('start', '2026-02-16T13:00:00Z'),
+            makeRecord('finish', '2026-02-16T15:30:00Z'),
+            makeRecord('start', '2026-02-16T16:00:00Z'),
             makeRecord('finish', '2026-02-16T18:00:00Z'),
         ]
         const segments = getWorkSegments(records)
-        expect(segments).toHaveLength(2)
-        // First segment: 09:00 - 12:00
-        expect(segments[0].start).toEqual(new Date('2026-02-16T09:00:00Z'))
+        expect(segments).toHaveLength(3)
+        // Block 1: 08:00 - 12:00
+        expect(segments[0].start).toEqual(new Date('2026-02-16T08:00:00Z'))
         expect(segments[0].end).toEqual(new Date('2026-02-16T12:00:00Z'))
-        // Second segment: 13:00 - 18:00
+        // Block 2: 13:00 - 15:30
         expect(segments[1].start).toEqual(new Date('2026-02-16T13:00:00Z'))
-        expect(segments[1].end).toEqual(new Date('2026-02-16T18:00:00Z'))
+        expect(segments[1].end).toEqual(new Date('2026-02-16T15:30:00Z'))
+        // Block 3: 16:00 - 18:00
+        expect(segments[2].start).toEqual(new Date('2026-02-16T16:00:00Z'))
+        expect(segments[2].end).toEqual(new Date('2026-02-16T18:00:00Z'))
     })
 
     it('returns open segment when currently working', () => {
@@ -128,6 +133,19 @@ describe('getWorkSegments', () => {
         expect(segments[0].start).toEqual(new Date('2026-02-16T09:00:00Z'))
         expect(segments[0].end).toBeNull()
     })
+
+    it('handles open segment after completed blocks', () => {
+        const records = [
+            makeRecord('start', '2026-02-16T08:00:00Z'),
+            makeRecord('finish', '2026-02-16T12:00:00Z'),
+            makeRecord('start', '2026-02-16T13:00:00Z'),
+        ]
+        const segments = getWorkSegments(records)
+        expect(segments).toHaveLength(2)
+        expect(segments[0].end).toEqual(new Date('2026-02-16T12:00:00Z'))
+        expect(segments[1].start).toEqual(new Date('2026-02-16T13:00:00Z'))
+        expect(segments[1].end).toBeNull()
+    })
 })
 
 describe('calculateTotalWorkedMs', () => {
@@ -135,7 +153,7 @@ describe('calculateTotalWorkedMs', () => {
         expect(calculateTotalWorkedMs([])).toBe(0)
     })
 
-    it('calculates completed segment correctly', () => {
+    it('calculates a single completed block correctly', () => {
         const records = [
             makeRecord('start', '2026-02-16T09:00:00Z'),
             makeRecord('finish', '2026-02-16T17:00:00Z'), // 8 hours
@@ -144,7 +162,7 @@ describe('calculateTotalWorkedMs', () => {
         expect(ms).toBe(8 * 60 * 60 * 1000)
     })
 
-    it('calculates active segment using now parameter', () => {
+    it('calculates active block using now parameter', () => {
         const records = [
             makeRecord('start', '2026-02-16T09:00:00Z'),
         ]
@@ -153,22 +171,23 @@ describe('calculateTotalWorkedMs', () => {
         expect(ms).toBe(2 * 60 * 60 * 1000)
     })
 
-    it('excludes paused time from total', () => {
+    it('sums multiple work blocks correctly', () => {
         const records = [
-            makeRecord('start', '2026-02-16T09:00:00Z'),
-            makeRecord('pause', '2026-02-16T12:00:00Z'), // 3 hours worked
-            makeRecord('resume', '2026-02-16T13:00:00Z'), // 1 hour paused
-            makeRecord('finish', '2026-02-16T17:00:00Z'), // 4 hours worked
+            makeRecord('start', '2026-02-16T08:00:00Z'),
+            makeRecord('finish', '2026-02-16T12:00:00Z'),   // 4h
+            makeRecord('start', '2026-02-16T13:00:00Z'),
+            makeRecord('finish', '2026-02-16T15:30:00Z'),   // 2h30
+            makeRecord('start', '2026-02-16T16:00:00Z'),
+            makeRecord('finish', '2026-02-16T18:00:00Z'),   // 2h
         ]
         const ms = calculateTotalWorkedMs(records)
-        // Total: 3h + 4h = 7h
-        expect(ms).toBe(7 * 60 * 60 * 1000)
+        // Total: 4h + 2h30 + 2h = 8h30 = 8.5 hours
+        expect(ms).toBe(8.5 * 60 * 60 * 1000)
     })
 
     it('handles manual time edits correctly', () => {
-        // Scenario from SPEC: Start timer -> Manually change start time -> Verify total
         const records = [
-            makeRecord('start', '2026-02-16T08:45:00Z', { is_manual_entry: true }), // Edited to 15 min earlier
+            makeRecord('start', '2026-02-16T08:45:00Z', { is_manual_entry: true }),
             makeRecord('finish', '2026-02-16T17:00:00Z'),
         ]
         const ms = calculateTotalWorkedMs(records)
@@ -176,18 +195,16 @@ describe('calculateTotalWorkedMs', () => {
         expect(ms).toBe((8 * 60 + 15) * 60 * 1000)
     })
 
-    it('handles multiple pauses correctly', () => {
+    it('handles multiple blocks with active segment', () => {
         const records = [
-            makeRecord('start', '2026-02-16T09:00:00Z'),
-            makeRecord('pause', '2026-02-16T10:30:00Z'), // 1.5h worked
-            makeRecord('resume', '2026-02-16T10:45:00Z'), // 15min pause
-            makeRecord('pause', '2026-02-16T12:00:00Z'), // 1.25h worked
-            makeRecord('resume', '2026-02-16T13:00:00Z'), // 1h pause
-            makeRecord('finish', '2026-02-16T17:00:00Z'), // 4h worked
+            makeRecord('start', '2026-02-16T08:00:00Z'),
+            makeRecord('finish', '2026-02-16T12:00:00Z'),   // 4h
+            makeRecord('start', '2026-02-16T13:00:00Z'),   // active
         ]
-        const ms = calculateTotalWorkedMs(records)
-        // Total: 1.5 + 1.25 + 4 = 6.75h = 6h45min
-        expect(ms).toBe((6 * 60 + 45) * 60 * 1000)
+        const now = new Date('2026-02-16T15:00:00Z') // 2h into second block
+        const ms = calculateTotalWorkedMs(records, now)
+        // Total: 4h + 2h = 6h
+        expect(ms).toBe(6 * 60 * 60 * 1000)
     })
 })
 
@@ -219,7 +236,6 @@ describe('formatDuration', () => {
 
 describe('formatTime', () => {
     it('formats a date to HH:MM', () => {
-        // This will depend on locale; we just verify it returns a non-empty string
         const date = new Date('2026-02-16T14:30:00Z')
         const result = formatTime(date)
         expect(result).toBeTruthy()

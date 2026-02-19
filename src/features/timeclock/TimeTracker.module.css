@@ -1,400 +1,267 @@
-.tracker {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Card Styles */
+.card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    padding: 2rem;
-    text-align: center;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
 }
 
-/* Current Time Display */
-.currentTime {
-    font-family: var(--font-mono);
+/* Header / Timer Display */
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.timeDisplay {
+    font-size: 3.5rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.dateDisplay {
+    color: var(--text-secondary);
     font-size: 1rem;
-    color: var(--color-text-muted);
-    margin-bottom: var(--space-4);
-    letter-spacing: 0.05em;
 }
 
-/* Status Badge */
 .statusBadge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     padding: 0.25rem 0.75rem;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: var(--space-6);
-}
-
-.statusIdle {
-    background: var(--color-secondary);
-    color: var(--color-text-muted);
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 500;
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
 }
 
 .statusWorking {
-    background: rgba(34, 197, 94, 0.15);
-    color: var(--color-success);
-    animation: pulse 2s ease-in-out infinite;
+    background-color: rgba(34, 197, 94, 0.1);
+    color: var(--success);
 }
 
-.statusPaused {
-    background: rgba(234, 179, 8, 0.15);
-    color: var(--color-warning);
+.statusIdle {
+    background-color: rgba(100, 116, 139, 0.1);
+    color: var(--text-secondary);
 }
 
-.statusFinished {
-    background: rgba(99, 102, 241, 0.15);
-    color: #818cf8;
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.6;
-    }
-}
-
-/* Timer Display */
-.timerDisplay {
-    font-family: var(--font-mono);
-    font-size: 3.5rem;
-    font-weight: 700;
-    color: var(--color-primary);
-    letter-spacing: 0.02em;
-    margin-bottom: var(--space-2);
-    line-height: 1;
-    transition: color 0.3s ease;
-}
-
-.timerLabel {
-    font-size: 0.875rem;
-    color: var(--color-text-muted);
-    margin-bottom: var(--space-8);
-}
-
-/* Action Buttons */
-.actions {
+/* Main Action Button */
+.mainAction {
     display: flex;
-    gap: var(--space-3);
     justify-content: center;
-    flex-wrap: wrap;
-    margin-bottom: var(--space-6);
+    margin-bottom: 2rem;
 }
 
-.actionButton {
-    display: inline-flex;
+.toggleButton {
+    display: flex;
     align-items: center;
-    gap: var(--space-2);
-    padding: 0.75rem 1.5rem;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 300px;
+    padding: 1rem;
     border: none;
-    border-radius: var(--radius-md);
-    font-size: 0.95rem;
+    border-radius: var(--radius-full);
+    font-size: 1.125rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
-    min-width: 140px;
-    justify-content: center;
+    transition: all 0.2s;
+    color: white;
+    box-shadow: var(--shadow-md);
 }
 
-.actionButton:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.actionButton:active {
-    transform: translateY(0);
-}
-
-.actionButton:disabled {
-    opacity: 0.4;
+.toggleButton:disabled {
+    opacity: 0.7;
     cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
 }
 
-.startButton {
-    background: var(--color-success);
-    color: #fff;
+.btnEntry {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
 }
 
-.pauseButton {
-    background: var(--color-warning);
-    color: #1a1a1a;
+.btnEntry:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
 }
 
-.resumeButton {
-    background: #6366f1;
-    color: #fff;
+.btnExit {
+    background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
 }
 
-.finishButton {
-    background: var(--color-error);
-    color: #fff;
+.btnExit:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Manual Entry Form */
+.manualEntry {
+    margin-top: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.manualEntryTitle {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.manualForm {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.dateTimeInput {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    font-family: inherit;
+}
+
+.typeSelect {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    font-family: inherit;
+}
+
+.addButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border: 1px solid var(--primary);
+    background-color: rgba(37, 99, 235, 0.1);
+    color: var(--primary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.addButton:hover {
+    background-color: var(--primary);
+    color: white;
 }
 
 /* Timeline */
 .timeline {
-    margin-top: var(--space-6);
-    border-top: 1px solid var(--color-border);
-    padding-top: var(--space-6);
-    text-align: left;
+    margin-top: 2rem;
 }
 
 .timelineTitle {
-    font-size: 0.875rem;
+    font-size: 1.125rem;
     font-weight: 600;
-    color: var(--color-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: var(--space-4);
+    color: var(--text-primary);
+    margin-bottom: 1rem;
 }
 
 .timelineList {
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
+    gap: 0.75rem;
 }
 
 .timelineItem {
     display: flex;
+    flex-direction: row;
     align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-3) var(--space-4);
-    background: var(--color-background);
-    border: 1px solid var(--color-border);
+    padding: 0.75rem;
+    background-color: var(--bg-secondary);
     border-radius: var(--radius-md);
-    font-size: 0.875rem;
-    transition: background 0.2s ease;
+    border-left: 3px solid var(--text-muted);
 }
 
-.timelineItem:hover {
-    background: var(--color-surface-hover);
+.timelineItem.completed {
+    border-left-color: var(--success);
 }
 
-.timelineDot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
+.timelineItem.active {
+    border-left-color: var(--primary);
+    background-color: rgba(37, 99, 235, 0.05);
 }
 
-.dotStart,
-.dotResume {
-    background: var(--color-success);
-}
-
-.dotPause {
-    background: var(--color-warning);
-}
-
-.dotFinish {
-    background: var(--color-error);
-}
-
-.timelineTime {
-    font-family: var(--font-mono);
-    color: var(--color-primary);
-    min-width: 50px;
-}
-
-.timelineType {
-    color: var(--color-text-muted);
-    flex: 1;
-}
-
-.timelineManual {
-    font-size: 0.7rem;
-    color: var(--color-warning);
-    background: rgba(234, 179, 8, 0.1);
-    padding: 0.125rem 0.375rem;
-    border-radius: var(--radius-sm);
-}
-
-.timelineActions {
+.timeBlock {
     display: flex;
-    gap: var(--space-1);
+    align-items: center;
+    flex: 1;
+    gap: 0.5rem;
 }
 
-.timelineActionBtn {
+.timeLabel {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.timeArrow {
+    color: var(--text-muted);
+}
+
+.durationBadge {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--radius-full);
+    background-color: var(--bg-card);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    margin-left: auto;
+}
+
+.deleteBtn {
+    padding: 0.25rem;
+    margin-left: 0.5rem;
+    color: var(--text-muted);
     background: none;
     border: none;
-    color: var(--color-text-muted);
     cursor: pointer;
-    padding: var(--space-1);
-    border-radius: var(--radius-sm);
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
+    transition: color 0.2s;
 }
 
-.timelineActionBtn:hover {
-    color: var(--color-primary);
-    background: var(--color-surface-hover);
+.deleteBtn:hover {
+    color: var(--danger);
 }
 
-/* Edit Modal */
-.editOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    padding: var(--space-4);
-}
-
-.editModal {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: var(--space-6);
-    width: 100%;
-    max-width: 400px;
-}
-
-.editTitle {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin-bottom: var(--space-4);
-}
-
-.editField {
-    margin-bottom: var(--space-4);
-}
-
-.editLabel {
-    display: block;
-    font-size: 0.875rem;
-    color: var(--color-text-muted);
-    margin-bottom: var(--space-2);
-}
-
-.editInput {
-    width: 100%;
-    padding: var(--space-2) var(--space-3);
-    background: var(--color-background);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    color: var(--color-text);
-    font-family: var(--font-mono);
-    font-size: 0.95rem;
-    box-sizing: border-box;
-}
-
-.editInput:focus {
-    outline: none;
-    border-color: var(--color-ring);
-}
-
-.editActions {
-    display: flex;
-    gap: var(--space-3);
-    justify-content: flex-end;
-    margin-top: var(--space-4);
-}
-
-.editCancel {
-    padding: var(--space-2) var(--space-4);
-    background: transparent;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    color: var(--color-text);
-    cursor: pointer;
-    font-size: 0.875rem;
-}
-
-.editCancel:hover {
-    background: var(--color-surface-hover);
-}
-
-.editSave {
-    padding: var(--space-2) var(--space-4);
-    background: var(--color-primary);
-    color: var(--color-primary-foreground);
-    border: none;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 0.875rem;
-}
-
-.editSave:hover {
-    opacity: 0.9;
-}
-
-/* Location section */
-.locationSection {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    justify-content: center;
-    margin-bottom: var(--space-4);
-}
-
-.locationInput {
-    padding: var(--space-1) var(--space-3);
-    background: var(--color-background);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    color: var(--color-text);
-    font-size: 0.8rem;
-    width: 200px;
-}
-
-.locationInput:focus {
-    outline: none;
-    border-color: var(--color-ring);
-}
-
-.locationLabel {
-    font-size: 0.8rem;
-    color: var(--color-text-muted);
-}
-
-/* No company message */
-.noCompany {
-    padding: var(--space-8);
-    text-align: center;
-    color: var(--color-text-muted);
-}
-
-.noCompany p {
-    margin-bottom: var(--space-2);
-}
-
-/* Loading state */
-.loading {
-    padding: var(--space-8);
-    text-align: center;
-    color: var(--color-text-muted);
-}
-
-/* Responsive - Mobile First */
 @media (max-width: 480px) {
-    .tracker {
-        padding: 1.25rem;
-    }
-
-    .timerDisplay {
+    .timeDisplay {
         font-size: 2.5rem;
     }
 
-    .actions {
-        flex-direction: column;
+    .manualForm {
+        grid-template-columns: 1fr;
     }
-
-    .actionButton {
-        width: 100%;
+    
+    .timelineItem {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .durationBadge {
+        margin-left: 0;
+        align-self: flex-start;
     }
 }
