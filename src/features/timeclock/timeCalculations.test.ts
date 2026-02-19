@@ -41,7 +41,7 @@ describe('getTrackerState', () => {
         const records = [makeRecord('start', '2026-02-16T09:00:00Z')]
         const result = getTrackerState(records)
         expect(result.status).toBe('working')
-        expect(result.allowedActions).toEqual(['finish'])
+        expect(result.allowedActions).toEqual(['finish', 'pause'])
     })
 
     it('returns idle with entry action after exit', () => {
@@ -62,7 +62,7 @@ describe('getTrackerState', () => {
         ]
         const result = getTrackerState(records)
         expect(result.status).toBe('working')
-        expect(result.allowedActions).toEqual(['finish'])
+        expect(result.allowedActions).toEqual(['finish', 'pause'])
     })
 
     it('returns idle after multiple completed blocks', () => {

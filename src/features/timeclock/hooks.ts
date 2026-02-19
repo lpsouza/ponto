@@ -13,7 +13,7 @@ const DEBOUNCE_MS = 1000
  * Hook to manage time records for a specific company on the current date.
  * Implements optimistic UI: local state is updated first, then synced to Supabase.
  */
-export function useTimeRecords(companyId: string | null) {
+export function useTimeRecords(companyId: string | null, date: Date = new Date()) {
     const { user } = useAuth()
     const [records, setRecords] = useState<TimeRecord[]>([])
     const [loading, setLoading] = useState(true)
@@ -26,19 +26,19 @@ export function useTimeRecords(companyId: string | null) {
             return
         }
 
-        // Fetch today's records for the active company
-        const todayStart = new Date()
-        todayStart.setHours(0, 0, 0, 0)
+        // Fetch records for the specific date
+        const startOfDay = new Date(date)
+        startOfDay.setHours(0, 0, 0, 0)
 
-        const todayEnd = new Date()
-        todayEnd.setHours(23, 59, 59, 999)
+        const endOfDay = new Date(date)
+        endOfDay.setHours(23, 59, 59, 999)
 
         const { data, error } = await supabase
             .from('time_records')
             .select('*')
             .eq('company_id', companyId)
-            .gte('timestamp', todayStart.toISOString())
-            .lte('timestamp', todayEnd.toISOString())
+            .gte('timestamp', startOfDay.toISOString())
+            .lte('timestamp', endOfDay.toISOString())
             .order('timestamp', { ascending: true })
 
         if (error) {
@@ -47,7 +47,7 @@ export function useTimeRecords(companyId: string | null) {
             setRecords(data as TimeRecord[])
         }
         setLoading(false)
-    }, [user, companyId])
+    }, [user, companyId, date])
 
     useEffect(() => {
         setLoading(true)
@@ -73,12 +73,22 @@ export function useTimeRecords(companyId: string | null) {
         }
         lastActionRef.current = now
 
+        // If no timestamp is provided, use current time if today, or default to noon of selected date?
+        // Actually, for "start/stop" buttons, we usually mean "RIGHT NOW".
+        // But if we are viewing a past date, "start/stop" might not make sense or should default to that date's context?
+        // Let's assume buttons are for "Now" unless manual entry.
+        // HOWEVER, the requirement says "Manual Entry form defaults to currently selected date".
+        // The buttons (Start/Stop) should probably always be "Now" regardless of view, OR disabled if viewing past.
+        // Let's keep "Start/Stop" as "Now" for simplicity, and manual entry for past dates.
+
         const deviceTime = new Date().toISOString()
+        const timestamp = options?.timestamp || deviceTime
+
         const payload: InsertTimeRecord = {
             user_id: user.id,
             company_id: companyId,
             type,
-            timestamp: options?.timestamp || deviceTime,
+            timestamp,
             is_manual_entry: options?.isManual || false,
             notes: options?.notes || null,
             location: options?.location || null,
@@ -99,7 +109,17 @@ export function useTimeRecords(companyId: string | null) {
             created_at: deviceTime,
         }
 
-        setRecords((prev) => [...prev, optimisticRecord])
+        setRecords((prev) => {
+            // Only add optimistically if the date matches the viewed date
+            const recDate = new Date(optimisticRecord.timestamp)
+            const viewDate = new Date(date)
+            const isSameDay = recDate.toDateString() === viewDate.toDateString()
+
+            if (isSameDay) {
+                return [...prev, optimisticRecord].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+            }
+            return prev
+        })
 
         console.log('[DEBUG] Inserting time_record:', payload);
 
@@ -124,7 +144,7 @@ export function useTimeRecords(companyId: string | null) {
         )
 
         return data as TimeRecord
-    }, [user, companyId])
+    }, [user, companyId, date])
 
     const updateRecord = useCallback(async (id: string, updates: Omit<UpdateTimeRecord, 'id' | 'user_id'>) => {
         const { data, error } = await supabase
