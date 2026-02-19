@@ -35,6 +35,7 @@ It helps users track their "real" hours to avoid **overworking (Burnout)** or **
    - **E2E**: Use **Playwright** for critical flows (Login, Clock In/Out, Offline Sync).
    - **Requirement**: Every new feature spec must include a "Testing" section.
    - **Coverage**: Business logic (e.g., overtime calc) requires 100% unit test coverage.
+   - **MANDATORY**: Unit tests must ALWAYS pass 100% after any adjustment.
 
 5. **UI/UX**:
    - Design must be "Mobile First".
