@@ -20,6 +20,7 @@ As a Trust Position Professional, I want to freely register when I enter and lea
     - **Mapped Types**: `start` (Entrada) and `finish` (Saída).
 - [x] **Manual Entry**: Form to add records with specific types.
 - [x] **Timeline**: Show today's records in **chronological order** (earliest to latest), clearly displaying work blocks and any open (active) block at the end.
+- [x] **Edit Interface**: Editing and manual entry should be presented in a clear, accessible modal with distinct actions (Save, Cancel, Delete).
 
 ### 3.2 Work Blocks
 
@@ -34,12 +35,20 @@ As a Trust Position Professional, I want to freely register when I enter and lea
 - [ ] Optional: Capture location for personal context (e.g., "Worked from Home" vs "Office").
 - [ ] **No blocking**: Never block an action based on location.
 
-### 3.4 Offline Persistence & Sync
+### 3.4 History & Editing
+
+- [x] **Date Navigation**: User can navigate to past dates to view and edit history.
+- [x] **Edit Records**: User can edit the timestamp and type of existing records.
+- [x] **Delete Records**: User can delete existing records.
+- [x] **Manual Entry Context**: Manual entry form defaults to the currently selected date.
+- [ ] **Date Format**: Input fields must display dates in **DD/MM/YYYY** format (Brazilian standard).
+
+### 3.5 Offline Persistence & Sync
 
 - [x] **Strategy**: Optimistic UI. Save locally, sync when possible.
 - [x] **Conflict Resolution**: Last edit wins (User trusted).
 
-### 3.5 Data Model
+### 3.6 Data Model
 
 **Table: time_records**
 
@@ -61,7 +70,8 @@ As a Trust Position Professional, I want to freely register when I enter and lea
 - **E2E**:
     - **Scenario**: Register entry -> Register exit -> Verify block duration.
     - **Scenario**: Register multiple entry/exit pairs -> Verify total is the sum of all blocks.
-    - **Scenario**: Add manual entry at a past time -> Verify timeline and total update.
+    - **Scenario**: Navigate to past date -> Add manual entry -> Verify total for that date.
+    - **Scenario**: Edit existing record time -> Verify block recalculation.
 
 ## Technical Notes
 
