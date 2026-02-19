@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useAuth } from './AuthProvider'
 import { useNavigate } from 'react-router-dom'
 import styles from './LoginPage.module.css'
