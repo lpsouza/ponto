@@ -13,6 +13,7 @@
 | **SPEC-002** | Auth & Companies | ✅ Done |
 | **SPEC-003** | Time Clock | ✅ Done |
 | **SPEC-004** | Dashboard | ✅ Done |
+| **SPEC-005** | Migrations | ✅ Done |
 
 ## About the Project
 
@@ -58,6 +59,15 @@ This project follows **Spec-Driven Development (SDD)**.
         2. Login manually with your Google account.
         3. Wait until you see the Dashboard.
         4. Close the window. This saves your session for subsequent test runs.
+
+## Database Migrations
+
+- **Start Database**: `npm run db:start`
+- **Stop Database**: `npm run db:stop`
+- **Apply Migrations**: `npm run db:push`
+- **Deploy to Production**: `npm run db:deploy`
+- **Generate Migration**: `npm run db:diff`
+- **Reset Database**: `npm run db:reset`
 
 ## Project Structure
 
