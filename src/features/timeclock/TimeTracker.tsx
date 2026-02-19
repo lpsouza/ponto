@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Timer, ArrowRight, Plus, AlertCircle } from 'lucide-react'
+import DatePicker, { registerLocale } from 'react-datepicker'
+import { ptBR } from 'date-fns/locale'
+import "react-datepicker/dist/react-datepicker.css"
+
 import { useTimeRecords } from './hooks'
 import {
     calculateTotalWorkedMs,
@@ -7,9 +11,11 @@ import {
     formatTime,
     getTrackerState,
     getWorkSegments,
-    toDatetimeLocalString,
 } from './timeCalculations'
 import styles from './TimeTracker.module.css'
+
+// Register locale
+registerLocale('pt-BR', ptBR)
 
 interface TimeTrackerProps {
     companyId: string | null
@@ -33,19 +39,29 @@ const statusConfig = {
 }
 
 export function TimeTracker({ companyId }: TimeTrackerProps) {
+    const [selectedDate, setSelectedDate] = useState(new Date())
+
     const {
         records,
         loading,
-        addRecord
-    } = useTimeRecords(companyId)
+        addRecord,
+        updateRecord,
+        deleteRecord
+    } = useTimeRecords(companyId, selectedDate)
 
     const [currentTime, setCurrentTime] = useState(new Date())
     const [elapsedMs, setElapsedMs] = useState(0)
 
     // Manual entry state
-    const [manualDate, setManualDate] = useState(toDatetimeLocalString(new Date()))
+    const [manualDate, setManualDate] = useState<Date>(new Date())
     const [manualType, setManualType] = useState<'start' | 'finish'>('start')
     const [submitting, setSubmitting] = useState(false)
+
+    // Edit state
+    const [editingSegment, setEditingSegment] = useState<{ start: Date, end: Date | null } | null>(null)
+    const [editStart, setEditStart] = useState<Date | null>(null)
+    const [editEnd, setEditEnd] = useState<Date | null>(null)
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
     // Update current time every second
     useEffect(() => {
@@ -55,6 +71,18 @@ export function TimeTracker({ companyId }: TimeTrackerProps) {
         }, 1000)
         return () => clearInterval(timer)
     }, [])
+
+    // Update manual date when selectedDate changes
+    useEffect(() => {
+        const now = new Date()
+        const isToday = selectedDate.toDateString() === now.toDateString()
+
+        // If today, default to now. If past date, default to 12:00 of that date
+        const defaultTime = isToday ? now : new Date(selectedDate)
+        if (!isToday) defaultTime.setHours(12, 0, 0, 0)
+
+        setManualDate(defaultTime)
+    }, [selectedDate])
 
     // Calculate total worked time
     useEffect(() => {
@@ -66,8 +94,16 @@ export function TimeTracker({ companyId }: TimeTrackerProps) {
     const currentStatus = statusConfig[status]
     const segments = getWorkSegments(records)
 
+    const isToday = selectedDate.toDateString() === new Date().toDateString()
+
     const handleMainAction = async () => {
         if (!companyId || submitting) return
+
+        if (!isToday) {
+            alert('Você só pode bater ponto para o dia atual. Use a entrada manual para datas passadas.')
+            return
+        }
+
         setSubmitting(true)
         try {
             await addRecord(currentStatus.nextAction)
@@ -81,23 +117,21 @@ export function TimeTracker({ companyId }: TimeTrackerProps) {
 
     const handleManualEntry = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!companyId || submitting) return
-
-        const date = new Date(manualDate)
-        if (isNaN(date.getTime())) {
-            alert('Data inválida')
-            return
-        }
+        if (!companyId || submitting || !manualDate) return
 
         setSubmitting(true)
         try {
             await addRecord(manualType, {
-                timestamp: date.toISOString(),
+                timestamp: manualDate.toISOString(),
                 isManual: true,
                 notes: 'Manual entry'
             })
-            // Reset form to current time
-            setManualDate(toDatetimeLocalString(new Date()))
+            // Reset form
+            const now = new Date()
+            const isToday = selectedDate.toDateString() === now.toDateString()
+            const defaultTime = isToday ? now : new Date(selectedDate)
+            if (!isToday) defaultTime.setHours(12, 0, 0, 0)
+            setManualDate(defaultTime)
         } catch (error) {
             console.error(error)
             alert('Erro ao adicionar registro manual')
@@ -106,6 +140,92 @@ export function TimeTracker({ companyId }: TimeTrackerProps) {
         }
     }
 
+    const handlePrevDay = () => {
+        const prev = new Date(selectedDate)
+        prev.setDate(prev.getDate() - 1)
+        setSelectedDate(prev)
+    }
+
+    const handleNextDay = () => {
+        const next = new Date(selectedDate)
+        next.setDate(next.getDate() + 1)
+        if (next > new Date()) return
+        setSelectedDate(next)
+    }
+
+    const openEditModal = (segment: { start: Date, end: Date | null }) => {
+        setEditingSegment(segment)
+        setEditStart(segment.start)
+        setEditEnd(segment.end)
+        setIsEditModalOpen(true)
+    }
+
+    const handleSaveEdit = async () => {
+        if (!editingSegment || !companyId || !editStart) return
+
+        const startRecord = records.find(r => new Date(r.timestamp).getTime() === editingSegment.start.getTime() && (r.type === 'start' || r.type === 'resume'))
+        const endRecord = editingSegment.end
+            ? records.find(r => new Date(r.timestamp).getTime() === editingSegment.end!.getTime() && (r.type === 'finish' || r.type === 'pause'))
+            : null
+
+        if (!startRecord) {
+            alert('Erro ao identificar registro de início')
+            return
+        }
+
+        setSubmitting(true)
+        try {
+            // Update Start
+            if (editStart.toISOString() !== startRecord.timestamp) {
+                await updateRecord(startRecord.id, { timestamp: editStart.toISOString() })
+            }
+
+            // Update or Create End
+            if (editEnd) {
+                if (endRecord) {
+                    if (editEnd.toISOString() !== endRecord.timestamp) {
+                        await updateRecord(endRecord.id, { timestamp: editEnd.toISOString() })
+                    }
+                } else {
+                    // Was active, now closing
+                    await addRecord('finish', { timestamp: editEnd.toISOString(), isManual: true })
+                }
+            } else if (endRecord) {
+                // Had end, now removed (making it active)
+                await deleteRecord(endRecord.id)
+            }
+
+            setIsEditModalOpen(false)
+            setEditingSegment(null)
+        } catch (error) {
+            console.error(error)
+            alert('Erro ao salvar alterações')
+        } finally {
+            setSubmitting(false)
+        }
+    }
+
+    const handleDeleteSegment = async () => {
+        if (!editingSegment || !companyId || !confirm('Tem certeza que deseja excluir este período?')) return
+
+        const startRecord = records.find(r => new Date(r.timestamp).getTime() === editingSegment.start.getTime() && (r.type === 'start' || r.type === 'resume'))
+        const endRecord = editingSegment.end
+            ? records.find(r => new Date(r.timestamp).getTime() === editingSegment.end!.getTime() && (r.type === 'finish' || r.type === 'pause'))
+            : null
+
+        setSubmitting(true)
+        try {
+            if (endRecord) await deleteRecord(endRecord.id)
+            if (startRecord) await deleteRecord(startRecord.id)
+            setIsEditModalOpen(false)
+            setEditingSegment(null)
+        } catch (error) {
+            console.error(error)
+            alert('Erro ao excluir registros')
+        } finally {
+            setSubmitting(false)
+        }
+    }
 
 
     if (!companyId) {
@@ -123,6 +243,21 @@ export function TimeTracker({ companyId }: TimeTrackerProps) {
 
     return (
         <div className={styles.container}>
+            {/* Date Navigation */}
+            <div className={styles.dateNav}>
+                <button onClick={handlePrevDay} className={styles.navButton}>&lt;</button>
+                <span className={styles.currentDate}>
+                    {selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                </span>
+                <button
+                    onClick={handleNextDay}
+                    className={styles.navButton}
+                    disabled={isToday}
+                >
+                    &gt;
+                </button>
+            </div>
+
             {/* Main Timer Card */}
             <div className={styles.card}>
                 <div className={styles.header}>
@@ -134,7 +269,7 @@ export function TimeTracker({ companyId }: TimeTrackerProps) {
                         {formatDuration(elapsedMs)}
                     </div>
                     <div className={styles.dateDisplay}>
-                        {currentTime.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                        Total acumulado
                     </div>
                 </div>
 
@@ -142,7 +277,8 @@ export function TimeTracker({ companyId }: TimeTrackerProps) {
                     <button
                         className={`${styles.toggleButton} ${currentStatus.buttonClass}`}
                         onClick={handleMainAction}
-                        disabled={loading || submitting}
+                        disabled={loading || submitting || !isToday}
+                        style={{ opacity: !isToday ? 0.5 : 1 }}
                     >
                         {loading ? 'Carregando...' : currentStatus.buttonText}
                     </button>
@@ -150,15 +286,23 @@ export function TimeTracker({ companyId }: TimeTrackerProps) {
 
                 {/* Manual Entry Form */}
                 <div className={styles.manualEntry}>
-                    <h3 className={styles.manualEntryTitle}>Adicionar registro manual</h3>
+                    <h3 className={styles.manualEntryTitle}>
+                        {isToday ? 'Adicionar registro manual' : `Adicionar em ${selectedDate.toLocaleDateString('pt-BR')}`}
+                    </h3>
                     <form className={styles.manualForm} onSubmit={handleManualEntry}>
-                        <input
-                            type="datetime-local"
-                            className={styles.dateTimeInput}
-                            value={manualDate}
-                            onChange={(e) => setManualDate(e.target.value)}
-                            required
-                        />
+                        <div className={styles.datePickerWrapper}>
+                            <DatePicker
+                                selected={manualDate}
+                                onChange={(date: Date | null) => date && setManualDate(date)}
+                                showTimeSelect
+                                timeFormat="HH:mm"
+                                timeIntervals={15}
+                                dateFormat="dd/MM/yyyy HH:mm"
+                                locale="pt-BR"
+                                className={styles.dateTimeInput}
+                                required
+                            />
+                        </div>
                         <select
                             className={styles.typeSelect}
                             value={manualType}
@@ -181,11 +325,11 @@ export function TimeTracker({ companyId }: TimeTrackerProps) {
 
             {/* Timeline */}
             <div className={styles.timeline}>
-                <h3 className={styles.timelineTitle}>Histórico de hoje</h3>
+                <h3 className={styles.timelineTitle}>Histórico</h3>
                 <div className={styles.timelineList}>
                     {segments.length === 0 && (
                         <p style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>
-                            Nenhum registro hoje.
+                            Nenhum registro para este dia.
                         </p>
                     )}
 
@@ -195,18 +339,13 @@ export function TimeTracker({ companyId }: TimeTrackerProps) {
                             ? segment.end!.getTime() - segment.start.getTime()
                             : currentTime.getTime() - segment.start.getTime()
 
-                        // Find original records to allow deletion
-                        // In a real app we might store record IDs in the segment
-                        // For now we'll just not implement individual record deletion from the block view easily
-                        // Or we can find them in the records array.
-                        // Let's keep it simple: just show the blocks. 
-                        // To delete, we would need to list individual records, 
-                        // but the spec says "timeline: show records as entry/exit pairs".
-
                         return (
                             <div
                                 key={segment.start.toISOString()}
                                 className={`${styles.timelineItem} ${isCompleted ? styles.completed : styles.active}`}
+                                onClick={() => openEditModal(segment)}
+                                style={{ cursor: 'pointer' }}
+                                title="Clique para editar"
                             >
                                 <div className={styles.timeBlock}>
                                     <span className={styles.timeLabel}>
@@ -226,6 +365,51 @@ export function TimeTracker({ companyId }: TimeTrackerProps) {
                     })}
                 </div>
             </div>
+
+            {/* Edit Modal */}
+            {isEditModalOpen && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modalContent}>
+                        <h3>Editar Ponto</h3>
+                        <div className={styles.modalField}>
+                            <label>Entrada:</label>
+                            <DatePicker
+                                selected={editStart}
+                                onChange={(date: Date | null) => setEditStart(date)}
+                                showTimeSelect
+                                timeFormat="HH:mm"
+                                timeIntervals={15}
+                                dateFormat="dd/MM/yyyy HH:mm"
+                                locale="pt-BR"
+                                className={styles.dateTimeInput}
+                                required
+                            />
+                        </div>
+                        <div className={styles.modalField}>
+                            <label>Saída (deixe vazio se ativo):</label>
+                            <DatePicker
+                                selected={editEnd}
+                                onChange={(date: Date | null) => setEditEnd(date)}
+                                showTimeSelect
+                                timeFormat="HH:mm"
+                                timeIntervals={15}
+                                dateFormat="dd/MM/yyyy HH:mm"
+                                locale="pt-BR"
+                                className={styles.dateTimeInput}
+                                isClearable
+                                placeholderText="Em andamento..."
+                            />
+                        </div>
+                        <div className={styles.modalActions}>
+                            <button onClick={handleDeleteSegment} className={styles.deleteButton}>Excluir</button>
+                            <div className={styles.rightActions}>
+                                <button onClick={() => setIsEditModalOpen(false)} className={styles.cancelButton}>Cancelar</button>
+                                <button onClick={handleSaveEdit} className={styles.saveButton}>Salvar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
