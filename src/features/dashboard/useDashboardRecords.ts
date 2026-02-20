@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { supabase } from '../../lib/supabase'
+import { pb } from '../../lib/pocketbase'
 import { useAuth } from '../auth/AuthProvider'
 import { TimeRecord } from '../timeclock/timeCalculations'
 
@@ -25,18 +25,14 @@ export function useDashboardRecords(companyId: string | null, year: number, mont
         const startDate = new Date(year, month, 1)
         const endDate = new Date(year, month + 1, 0, 23, 59, 59, 999)
 
-        const { data, error } = await supabase
-            .from('time_records')
-            .select('*')
-            .eq('company_id', companyId)
-            .gte('timestamp', startDate.toISOString())
-            .lte('timestamp', endDate.toISOString())
-            .order('timestamp', { ascending: true })
-
-        if (error) {
-            console.error('Error fetching dashboard records:', error)
-        } else {
+        try {
+            const data = await pb.collection('time_records').getFullList({
+                filter: `company_id = "${companyId}" && timestamp >= "${startDate.toISOString()}" && timestamp <= "${endDate.toISOString()}"`,
+                sort: 'timestamp',
+            })
             setRecords(data as TimeRecord[])
+        } catch (error) {
+            console.error('Error fetching dashboard records:', error)
         }
 
         setLoading(false)

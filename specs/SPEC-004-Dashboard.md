@@ -1,7 +1,7 @@
 ---
 id: SPEC-004
 feature: Dashboard & Reports
-status: To Do
+status: Done
 priority: Medium
 ---
 
