@@ -66,6 +66,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const signInWithGoogle = async () => {
         try {
+            // No PocketBase v0.20+, a maneira recomendada e mais simples em SPA é usar a chamada built-in
+            // que cuida do pop-up. Porém, se o provider não existir, a API retorna undefined na listagem.
+            const authMethods = await pb.collection('users').listAuthMethods()
+            const googleProvider = authMethods.authProviders.find((p: any) => p.name === 'google')
+
+            if (!googleProvider) {
+                console.error("Provedor Google não encontrado ou desabilitado no PocketBase admin.")
+                alert("O Login com o Google não está configurado ou habilitado no banco de dados local.")
+                return
+            }
+
             await pb.collection('users').authWithOAuth2({ provider: 'google' })
             // Once succesful, LoginPage handles the navigation to /dashboard.
         } catch (error) {
