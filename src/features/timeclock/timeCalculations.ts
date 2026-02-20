@@ -1,6 +1,6 @@
-import { Database } from '../../types/database.types'
+import { TimeRecordsRecord } from '../../types/pocketbase.types'
 
-export type TimeRecord = Database['public']['Tables']['time_records']['Row']
+export type TimeRecord = TimeRecordsRecord
 export type TimeRecordType = TimeRecord['type']
 
 /**

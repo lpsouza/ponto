@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { supabase } from '../../lib/supabase'
-import { Database } from '../../types/database.types'
+import { pb } from '../../lib/pocketbase'
+import { TimeRecordsRecord } from '../../types/pocketbase.types'
 import { useAuth } from '../auth/AuthProvider'
 import { TimeRecord, TimeRecordType } from './timeCalculations'
 
-export type InsertTimeRecord = Database['public']['Tables']['time_records']['Insert']
-export type UpdateTimeRecord = Database['public']['Tables']['time_records']['Update']
+export type InsertTimeRecord = Omit<TimeRecordsRecord, 'id' | 'created' | 'updated'>
+export type UpdateTimeRecord = Partial<InsertTimeRecord>
 
 const DEBOUNCE_MS = 1000
 
@@ -33,18 +33,14 @@ export function useTimeRecords(companyId: string | null, date: Date = new Date()
         const endOfDay = new Date(date)
         endOfDay.setHours(23, 59, 59, 999)
 
-        const { data, error } = await supabase
-            .from('time_records')
-            .select('*')
-            .eq('company_id', companyId)
-            .gte('timestamp', startOfDay.toISOString())
-            .lte('timestamp', endOfDay.toISOString())
-            .order('timestamp', { ascending: true })
-
-        if (error) {
-            console.error('Error fetching time records:', error)
-        } else {
+        try {
+            const data = await pb.collection('time_records').getFullList({
+                filter: `company_id = "${companyId}" && timestamp >= "${startOfDay.toISOString()}" && timestamp <= "${endOfDay.toISOString()}"`,
+                sort: 'timestamp',
+            })
             setRecords(data as TimeRecord[])
+        } catch (error) {
+            console.error('Error fetching time records:', error)
         }
         setLoading(false)
     }, [user, companyId, date])
@@ -90,8 +86,8 @@ export function useTimeRecords(companyId: string | null, date: Date = new Date()
             type,
             timestamp,
             is_manual_entry: options?.isManual || false,
-            notes: options?.notes || null,
-            location: options?.location || null,
+            notes: options?.notes || undefined,
+            location: options?.location || undefined,
             device_time: deviceTime,
         }
 
@@ -103,10 +99,10 @@ export function useTimeRecords(companyId: string | null, date: Date = new Date()
             timestamp: payload.timestamp!,
             type: payload.type,
             is_manual_entry: payload.is_manual_entry!,
-            notes: payload.notes ?? null,
-            location: payload.location ?? null,
-            device_time: payload.device_time ?? null,
-            created_at: deviceTime,
+            notes: payload.notes ?? undefined,
+            location: payload.location ?? undefined,
+            device_time: payload.device_time ?? undefined,
+            created: deviceTime,
         }
 
         setRecords((prev) => {
@@ -123,46 +119,33 @@ export function useTimeRecords(companyId: string | null, date: Date = new Date()
 
         console.log('[DEBUG] Inserting time_record:', payload);
 
-        // Sync to Supabase
-        const { data, error } = await supabase
-            .from('time_records')
-            // @ts-ignore
-            .insert(payload)
-            .select()
-            .single()
+        // Sync to PocketBase
+        try {
+            const data = await pb.collection('time_records').create<TimeRecord>(payload)
 
-        if (error) {
+            // Replace optimistic record with server record
+            setRecords((prev) =>
+                prev.map((r) => (r.id === optimisticRecord.id ? data : r))
+            )
+
+            return data
+        } catch (error) {
             console.error('Error creating time record:', error)
             // Rollback optimistic update
             setRecords((prev) => prev.filter((r) => r.id !== optimisticRecord.id))
             throw error
         }
-
-        // Replace optimistic record with server record
-        setRecords((prev) =>
-            prev.map((r) => (r.id === optimisticRecord.id ? (data as TimeRecord) : r))
-        )
-
-        return data as TimeRecord
     }, [user, companyId, date])
 
     const updateRecord = useCallback(async (id: string, updates: Omit<UpdateTimeRecord, 'id' | 'user_id'>) => {
-        const { data, error } = await supabase
-            .from('time_records')
-            // @ts-ignore
-            .update({ ...updates, is_manual_entry: true })
-            // @ts-ignore
-            .eq('id', id)
-            .select()
-            .single()
-
-        if (error) {
+        try {
+            const data = await pb.collection('time_records').update<TimeRecord>(id, { ...updates, is_manual_entry: true })
+            setRecords((prev) => prev.map((r) => (r.id === id ? data : r)))
+            return data
+        } catch (error) {
             console.error('Error updating time record:', error)
             throw error
         }
-
-        setRecords((prev) => prev.map((r) => (r.id === id ? (data as TimeRecord) : r)))
-        return data as TimeRecord
     }, [])
 
     const deleteRecord = useCallback(async (id: string) => {
@@ -170,12 +153,9 @@ export function useTimeRecords(companyId: string | null, date: Date = new Date()
         const prev = records
         setRecords((current) => current.filter((r) => r.id !== id))
 
-        const { error } = await supabase
-            .from('time_records')
-            .delete()
-            .eq('id', id)
-
-        if (error) {
+        try {
+            await pb.collection('time_records').delete(id)
+        } catch (error) {
             console.error('Error deleting time record:', error)
             setRecords(prev) // Rollback
             throw error

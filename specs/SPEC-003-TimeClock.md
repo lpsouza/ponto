@@ -1,7 +1,7 @@
 ---
 id: SPEC-003
 feature: Time Clock (Core)
-status: To Do
+status: Done
 priority: Critical
 ---
 
@@ -41,7 +41,7 @@ As a Trust Position Professional, I want to freely register when I enter and lea
 - [x] **Edit Records**: User can edit the timestamp and type of existing records.
 - [x] **Delete Records**: User can delete existing records.
 - [x] **Manual Entry Context**: Manual entry form defaults to the currently selected date.
-- [ ] **Date Format**: Input fields must display dates in **DD/MM/YYYY** format (Brazilian standard).
+- [x] **Date Format**: Input fields must display dates in **DD/MM/YYYY** format (Brazilian standard).
 
 ### 3.5 Offline Persistence & Sync
 
