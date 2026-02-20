@@ -1,7 +1,7 @@
 ---
 id: SPEC-005
 feature: Database Migrations
-status: Done
+status: To Do
 priority: High
 ---
 
@@ -22,19 +22,18 @@ Currently, we use a single `schema.sql` file. This works for a new setup but fai
 
 ### 5.1 Migration System
 
-- [x] **Tooling**: Adopt **Supabase CLI** (or a lightweight alternative if CLI is too heavy) for managing migrations.
-- [x] **Structure**: Use a `supabase/migrations/` directory with timestamped SQL files (e.g., `20240219150000_update_time_types.sql`).
-- [x] **Workflow**:
-    - `npm run db:diff`: Generate a new migration based on changes.
-    - `npm run db:push`: Apply pending migrations to the local/remote DB.
-- [x] **Versioning**: The state of the database should be strictly versioned.
+- [ ] **Tooling**: Adopt **PocketBase** built-in JS schema migrations.
+- [ ] **Structure**: Use a `pb_migrations/` directory with timestamped JS files (e.g., `1708354800_update_time_types.js`).
+- [ ] **Workflow**:
+    - Manage via PocketBase Admin UI (locally) with `--automigrate` enabled to auto-generate migrations.
+    - Apply pending migrations to the remote DB automatically on restart.
+- [ ] **Versioning**: The state of the database should be strictly versioned.
 
 ### 5.2 CI/CD Integration
 
-- [x] **Automated Apply**: When deploying (e.g., via Docker), the system should check and apply pending migrations automatically.
-    - Implemented via `npm run db:deploy`.
+- [ ] **Automated Apply**: When deploying (e.g., via Docker), the PocketBase container automatically applies pending JS migrations on startup.
 
 ## Technical Notes
 
-- Since we are self-hosting (Docker), we might need a container that runs the migrations on startup, or a manual script.
-- The `schema.sql` file should eventually be generated *from* the migrations (snapshot), not manually edited.
+- Since we are self-hosting (Docker), the PocketBase executable automatically handles migrations in `pb_migrations` when starting the server.
+- The `pb_schema.json` (if used explicitly for tracking) should ideally be version controlled, though auto-generated JS files are preferred for step-by-step history.
