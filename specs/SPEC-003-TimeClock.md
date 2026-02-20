@@ -1,7 +1,7 @@
 ---
 id: SPEC-003
 feature: Time Clock (Core)
-status: Done
+status: To Do
 priority: Critical
 ---
 
@@ -50,12 +50,12 @@ As a Trust Position Professional, I want to freely register when I enter and lea
 
 ### 3.6 Data Model
 
-**Table: time_records**
+**Collection: time_records**
 
-- `id`: uuid
-- `user_id`: uuid (FK)
-- `company_id`: uuid (FK -> companies.id)
-- `timestamp`: timestamptz
+- `id`: string
+- `user`: relation -> users
+- `company`: relation -> companies
+- `timestamp`: date
 - `type`: text (`'start'`, `'pause'`, `'resume'`, `'finish'`)
 - `is_manual_entry`: boolean
 - `notes`: text (optional user notes)
@@ -76,4 +76,4 @@ As a Trust Position Professional, I want to freely register when I enter and lea
 ## Technical Notes
 
 - **Prevention**: Prevent double clicks (debounce).
-- **Time Source**: Trust Server Time (Supabase `now()`) for the official record, but store Device Time as metadata for audit.
+- **Time Source**: Trust Server Time (PocketBase `$autoCreate` or explicit server rules) for the official record, but store Device Time as metadata for audit.
