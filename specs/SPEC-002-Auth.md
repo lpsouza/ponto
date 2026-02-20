@@ -1,6 +1,6 @@
 id: SPEC-002
 feature: Authentication & User Profile
-status: Done
+status: To Do
 priority: Critical
 ---
 
@@ -15,10 +15,10 @@ As a Freelancer/Multi-job professional, I want to create multiple "Companies" (e
 
 ### 2.1 User Registration & Login
 
-- [x] **Google OAuth Only**: Users log in using their Google account (Personal or Workspace).
-- [x] **Auto-Registration**: First-time login automatically creates `auth.users` record.
-- [x] **Profile Sync**: Automatically fetch `full_name` and `avatar_url` from Google metadata on first login.
-- [x] **Creates a record in `public.profiles` linked to the user if not exists.**
+- [ ] **OAuth2 Only**: Users log in using their Google account via PocketBase Auth.
+- [ ] **Auto-Registration**: First-time login automatically creates a `users` record in PocketBase.
+- [ ] **Profile Sync**: Automatically fetch `name` and `avatarUrl` from Google metadata on first login.
+- [ ] **Record Linking**: Utilize the default `users` collection in PocketBase to store profile data natively.
 
 ### 2.2 Workspace / Company Management (Multi-Context)
 
@@ -33,40 +33,40 @@ This feature allows the user to manage multiple professional "contexts" or "comp
     - Storing the `active_company_id` in the user's `profile` preferences ensures the app remembers the last context on reload.
     - All dashboard metrics and time records are filtered by the currently Active Company.
 
-### 2.3 Row Level Security (RLS)
+### 2.3 API Rules (Security)
 
-- [x] **Profiles Table**: Users can read/update their own profile.
-- [x] **Companies Table**: Users can CRUD companies where `user_id` matches their ID.
-- [x] **TimeRecords Table**: Users can CRUD records where `user_id` matches their ID (and implicitly linked to their companies).
+- [ ] **Users Collection**: Users can read/update their own profile (`id = @request.auth.id`).
+- [ ] **Companies Collection**: Users can CRUD companies where `user` matches their ID (`user = @request.auth.id`).
+- [ ] **TimeRecords Collection**: Users can CRUD records where `user` matches their ID.
 
 ### 2.5 Session Handling
 
-- [x] **Expiration Redirect**: If the session expires or is invalidated (e.g., token revocation), the user must be automatically redirected to the Login page.
+- [ ] **Expiration Redirect**: If the session expires or is invalidated using `pb.authStore`, the user must be automatically redirected to the Login page.
 
 ### 2.4 Data Model
 
-**Table: profiles**
+**Collection: users**
 
-- `id`: uuid (PK, refers to auth.users)
-- `full_name`: text
-- `avatar_url`: text
-- `preferences`: jsonb (active_company_id, theme)
-
-**Table: companies**
-
-- `id`: uuid (PK)
-- `user_id`: uuid (FK -> auth.users)
+- `id`: string (PK)
 - `name`: text
-- `settings`: jsonb (default_hours, timezone)
+- `avatarUrl`: url
+- `preferences`: json (active_company_id, theme)
+
+**Collection: companies**
+
+- `id`: string (PK)
+- `user`: relation -> users
+- `name`: text
+- `settings`: json (default_hours, timezone)
 
 ## Testing
 
-- **Unit**: Verify profile creation on `auth.users` insert trigger (if used) or client-side flow.
+- **Unit**: Verify profile creation logic on client-side flow.
 - **E2E**:
     - **Scenario**: Click "Login with Google" -> Redirect to Dashboard.
     - **Scenario**: Logout -> Redirect to Login Page.
 
 ## Technical Notes
 
-- **Supabase Auth**: Enable Google Provider only. Disable Email/Password provider.
+- **PocketBase Auth**: Enable Google Provider only. Disable Email/Password provider if possible, or hide it from the UI.
 - **UX**: Simple "Continue with Google" button. No registration forms needed.
