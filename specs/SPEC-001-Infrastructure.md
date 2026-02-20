@@ -30,9 +30,9 @@ As a developer, I need a solid foundation with configured tools so that I can bu
 
 ### 1.3 Database & Backend
 
-- [x] Install `@supabase/supabase-js`.
-- [x] Create `src/lib/supabase.ts` client.
-- [x] Define global TypeScript types for Database entities.
+- [x] Install `pocketbase`.
+- [x] Create `src/lib/pocketbase.ts` client.
+- [x] Define global TypeScript types for Database Collections.
 
 ### 1.4 Global Styling
 
@@ -64,6 +64,6 @@ As a developer, I need a solid foundation with configured tools so that I can bu
 
 ## Technical Notes
 
-- **Stack**: React, Vite, TS, Supabase, Zustand.
+- **Stack**: React, Vite, TS, PocketBase, Zustand.
 - **Hosting**: Self-hosted (Docker + Nginx).
 - **Offline Strategy**: Service Worker for assets; LocalStorage for data (initially).

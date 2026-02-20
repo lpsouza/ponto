@@ -10,10 +10,10 @@
 | Spec ID | Feature | Status |
 | :--- | :--- | :--- |
 | **SPEC-001** | Infrastructure | ✅ Done |
-| **SPEC-002** | Auth & Companies | ✅ Done |
-| **SPEC-003** | Time Clock | ✅ Done |
-| **SPEC-004** | Dashboard | ✅ Done |
-| **SPEC-005** | Migrations | ✅ Done |
+| **SPEC-002** | Auth & Companies | 🚧 To Do |
+| **SPEC-003** | Time Clock | 🚧 To Do |
+| **SPEC-004** | Dashboard | 🚧 To Do |
+| **SPEC-005** | Migrations | 🚧 To Do |
 
 ## About the Project
 
@@ -33,7 +33,7 @@ A **Time Balance Tracker** designed for professionals in strictly **Trust Positi
 
 - **Frontend**: React + Vite + TypeScript.
 - **Styling**: Modern CSS (Vanilla).
-- **Backend/Database**: Supabase (PostgreSQL + Auth).
+- **Backend/Database**: PocketBase (SQLite + Auth).
 - **Testing**: Vitest (Unit) + Playwright (E2E).
 - **Hosting**: Self-hosted (Docker).
 
@@ -62,12 +62,7 @@ This project follows **Spec-Driven Development (SDD)**.
 
 ## Database Migrations
 
-- **Start Database**: `npm run db:start`
-- **Stop Database**: `npm run db:stop`
-- **Apply Migrations**: `npm run db:push`
-- **Deploy to Production**: `npm run db:deploy`
-- **Generate Migration**: `npm run db:diff`
-- **Reset Database**: `npm run db:reset`
+With PocketBase in development mode (`--automigrate`), schema changes made via the Admin UI are automatically recorded as JS migration files in `pb_migrations`. On production deployment, simply start the PocketBase binary, and pending migrations apply automatically.
 
 ## Project Structure
 
