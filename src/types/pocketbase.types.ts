@@ -8,10 +8,10 @@ export type Json =
     | { [key: string]: Json | undefined }
     | Json[]
 
-export interface ProfilesRecord {
+export interface UsersRecord {
     id: string;
-    full_name?: string;
-    avatar_url?: string;
+    name?: string;
+    avatarUrl?: string;
     preferences?: Json;
     created?: string;
     updated?: string;
@@ -42,7 +42,7 @@ export interface TimeRecordsRecord {
 
 // Define the TypedPocketBase interface
 export interface TypedPocketBase extends PocketBase {
-    collection(idOrName: 'profiles'): RecordService<ProfilesRecord>;
+    collection(idOrName: 'users'): RecordService<UsersRecord>;
     collection(idOrName: 'companies'): RecordService<CompaniesRecord>;
     collection(idOrName: 'time_records'): RecordService<TimeRecordsRecord>;
     collection(idOrName: string): RecordService<any>; // Fallback

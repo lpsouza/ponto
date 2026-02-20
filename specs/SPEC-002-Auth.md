@@ -1,6 +1,6 @@
 id: SPEC-002
 feature: Authentication & User Profile
-status: To Do
+status: Done
 priority: Critical
 ---
 

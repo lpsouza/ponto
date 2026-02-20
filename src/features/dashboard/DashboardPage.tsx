@@ -22,7 +22,7 @@ export const DashboardPage = () => {
         <div className={styles.container}>
             <header className={styles.header}>
                 <div>
-                    <h1 className={styles.title}>Olá, {profile?.full_name?.split(' ')[0]}</h1>
+                    <h1 className={styles.title}>Olá, {profile?.name?.split(' ')[0]}</h1>
                     <p style={{ color: 'var(--color-text-muted)' }}>
                         {activeCompanyName
                             ? `Contexto: ${activeCompanyName}`

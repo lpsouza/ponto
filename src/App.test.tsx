@@ -2,14 +2,20 @@ import { render, screen } from '@testing-library/react'
 import { vi, test, expect } from 'vitest'
 import App from './App'
 
-// Mock Supabase client
-vi.mock('./lib/supabase', () => ({
-    supabase: {
-        auth: {
-            getUser: () => Promise.resolve({ data: { user: null }, error: null }),
-            getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-            onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => { } } } }),
+// Mock PocketBase client
+vi.mock('./lib/pocketbase', () => ({
+    pb: {
+        authStore: {
+            isValid: false,
+            model: null,
+            record: null,
+            onChange: vi.fn(() => vi.fn()),
+            clear: vi.fn(),
         },
+        collection: vi.fn(() => ({
+            authRefresh: vi.fn(),
+            getOne: vi.fn(),
+        })),
     },
 }))
 
