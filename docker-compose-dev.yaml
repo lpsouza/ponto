@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  pocketbase:
+    image: ghcr.io/muchobits/pocketbase:latest
+    container_name: ponto-livre-pocketbase-dev
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./pb_data:/pb_data
+      - ./pb_migrations:/pb_migrations
+    # Run pocketbase with automigrate enabled by default for local development.
+    # It also listens on all interfaces (0.0.0.0) so it's accessible from outside the container.
+    command: ["serve", "--http=0.0.0.0:8090", "--automigrate", "--dir=/pb_data", "--migrationsDir=/pb_migrations"]

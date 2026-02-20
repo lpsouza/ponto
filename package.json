@@ -11,7 +11,9 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "vitest run",
-    "test": "vitest run"
+    "db:start": "docker compose -f docker-compose-dev.yaml up -d",
+    "db:stop": "docker compose -f docker-compose-dev.yaml down",
+    "db:logs": "docker compose -f docker-compose-dev.yaml logs -f"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
