@@ -1,7 +1,7 @@
 ---
 id: SPEC-005
 feature: Database Migrations
-status: To Do
+status: Done
 priority: High
 ---
 
@@ -22,16 +22,17 @@ Currently, we use a single `schema.sql` file. This works for a new setup but fai
 
 ### 5.1 Migration System
 
-- [ ] **Tooling**: Adopt **PocketBase** built-in JS schema migrations.
-- [ ] **Structure**: Use a `pb_migrations/` directory with timestamped JS files (e.g., `1708354800_update_time_types.js`).
-- [ ] **Workflow**:
+- [x] **Tooling**: Adopt **PocketBase** built-in JS schema migrations.
+- [x] **Structure**: Use a `pb_migrations/` directory with timestamped JS files (e.g., `1708354800_update_time_types.js`).
+- [x] **Workflow**:
     - Manage via PocketBase Admin UI (locally) with `--automigrate` enabled to auto-generate migrations.
     - Apply pending migrations to the remote DB automatically on restart.
-- [ ] **Versioning**: The state of the database should be strictly versioned.
+- [x] **Versioning**: The state of the database should be strictly versioned.
 
 ### 5.2 CI/CD Integration
 
-- [ ] **Automated Apply**: When deploying (e.g., via Docker), the PocketBase container automatically applies pending JS migrations on startup.
+- [x] **Automated Apply**: When deploying (e.g., via Docker), the PocketBase container automatically applies pending JS migrations on startup.
+- [x] **Frontend Servido Embutido**: O Docker copia o frontend (`dist/`) para `pb_public/`, de modo que o Pocketbase roda *backend* e *frontend* no mesmo container.
 
 ## Technical Notes
 

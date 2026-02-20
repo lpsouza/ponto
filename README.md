@@ -13,7 +13,7 @@
 | **SPEC-002** | Auth & Companies | 🚧 To Do |
 | **SPEC-003** | Time Clock | ✅ Done |
 | **SPEC-004** | Dashboard | ✅ Done |
-| **SPEC-005** | Migrations | 🚧 To Do |
+| **SPEC-005** | Migrations | ✅ Done |
 
 ## About the Project
 
@@ -33,7 +33,7 @@ A **Time Balance Tracker** designed for professionals in strictly **Trust Positi
 
 - **Frontend**: React + Vite + TypeScript.
 - **Styling**: Modern CSS (Vanilla).
-- **Backend/Database**: PocketBase (SQLite + Auth).
+- **Backend/Database**: PocketBase (SQLite + Auth + File Storage).
 - **Testing**: Vitest (Unit) + Playwright (E2E).
 - **Hosting**: Self-hosted (Docker).
 
