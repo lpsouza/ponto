@@ -24,6 +24,7 @@ export interface User extends BaseRecord {
 export interface Company extends BaseRecord {
     name: string
     user: string // User ID
+    settings?: any
 }
 
 export interface TimeRecord extends BaseRecord {

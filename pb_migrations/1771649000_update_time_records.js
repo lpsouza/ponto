@@ -6,12 +6,6 @@ migrate((app) => {
     unmarshal({
         "fields": [
             {
-                "name": "id",
-                "type": "text",
-                "primaryKey": true,
-                "system": true
-            },
-            {
                 "name": "company",
                 "type": "relation",
                 "required": true,
@@ -50,20 +44,6 @@ migrate((app) => {
             {
                 "name": "location",
                 "type": "text"
-            },
-            {
-                "name": "created",
-                "type": "autodate",
-                "system": true,
-                "onCreate": true,
-                "onUpdate": false
-            },
-            {
-                "name": "updated",
-                "type": "autodate",
-                "system": true,
-                "onCreate": true,
-                "onUpdate": true
             }
         ]
     }, timeRecords);
@@ -76,12 +56,6 @@ migrate((app) => {
 
     unmarshal({
         "fields": [
-            {
-                "name": "id",
-                "type": "text",
-                "primaryKey": true,
-                "system": true
-            },
             {
                 "name": "company",
                 "type": "relation",
@@ -118,20 +92,6 @@ migrate((app) => {
             {
                 "name": "comment",
                 "type": "text"
-            },
-            {
-                "name": "created",
-                "type": "autodate",
-                "system": true,
-                "onCreate": true,
-                "onUpdate": false
-            },
-            {
-                "name": "updated",
-                "type": "autodate",
-                "system": true,
-                "onCreate": true,
-                "onUpdate": true
             }
         ]
     }, timeRecords);

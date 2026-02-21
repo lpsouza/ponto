@@ -8,7 +8,7 @@ export const Navbar = () => {
     const { user, logout } = useAuth()
 
     const avatarUrl = user?.avatar
-        ? pb.files.getUrl(user as any, user.avatar)
+        ? pb.files.getURL(user as any, user.avatar)
         : null
 
     return (

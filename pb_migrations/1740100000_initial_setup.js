@@ -22,12 +22,6 @@ migrate((app) => {
         "type": "base",
         "fields": [
             {
-                "name": "id",
-                "type": "text",
-                "primaryKey": true,
-                "system": true
-            },
-            {
                 "name": "name",
                 "type": "text",
                 "required": true,
@@ -44,20 +38,6 @@ migrate((app) => {
             {
                 "name": "settings",
                 "type": "json"
-            },
-            {
-                "name": "created",
-                "type": "autodate",
-                "system": true,
-                "onCreate": true,
-                "onUpdate": false
-            },
-            {
-                "name": "updated",
-                "type": "autodate",
-                "system": true,
-                "onCreate": true,
-                "onUpdate": true
             }
         ],
         "listRule": "user = @request.auth.id",
@@ -74,12 +54,6 @@ migrate((app) => {
         "name": "time_records",
         "type": "base",
         "fields": [
-            {
-                "name": "id",
-                "type": "text",
-                "primaryKey": true,
-                "system": true
-            },
             {
                 "name": "company",
                 "type": "relation",
@@ -116,20 +90,6 @@ migrate((app) => {
             {
                 "name": "comment",
                 "type": "text"
-            },
-            {
-                "name": "created",
-                "type": "autodate",
-                "system": true,
-                "onCreate": true,
-                "onUpdate": false
-            },
-            {
-                "name": "updated",
-                "type": "autodate",
-                "system": true,
-                "onCreate": true,
-                "onUpdate": true
             }
         ],
         "listRule": "user = @request.auth.id",
