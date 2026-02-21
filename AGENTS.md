@@ -16,7 +16,8 @@ It helps users track their "real" hours to avoid **overworking (Burnout)** or **
    - Use **React** (Vite) as the core framework unless otherwise specified.
    - Use **TypeScript** for all code.
    - Styling: Use **Vanilla CSS** with CSS Modules or global CSS variables for theming. Avoid Tailwind unless explicitly requested by the user.
-   - Backend/Persistence: Prefer **Supabase** (PostgreSQL) for multi-tenant handling via RLS (Row Level Security).
+   - Backend/Persistence: Use **PocketBase** for database, auth, and file storage.
+   - Hosting: Unified hosting where PocketBase serves the frontend static files from `pb_public`.
 
 2. **Code Quality**:
    - **Standards**: Strictly follow **`.editorconfig`** settings for indentation and formatting.
@@ -44,6 +45,7 @@ It helps users track their "real" hours to avoid **overworking (Burnout)** or **
 6. **Git & Version Control**:
    - **Commit Messages**: Must be single-line in English.
    - **Spec Reference**: If the commit relates to a spec, MUST include the Spec ID (e.g., `[SPEC-001] Initial setup`).
+   - **NO AUTOMATIC COMMITS**: Do NOT run `git commit` commands automatically under any circumstance. ALWAYS wait for the user to explicitly request a commit before doing so.
 
 ## Development Methodology: Spec Driven Development (SDD)
 
@@ -73,5 +75,5 @@ It helps users track their "real" hours to avoid **overworking (Burnout)** or **
 
 - `/src/components`: Reusable UI components.
 - `/src/features`: Feature-based modules (Auth, TimeClock, Dashboard).
-- `/src/lib`: Configuration (Supabase client, Utils).
+- `/src/lib`: Configuration (PocketBase client, Utils).
 - `/src/styles`: Global styles and variables.
