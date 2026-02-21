@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Antigravity temp files
+implementation_plan.md
+task.md
+walkthrough.md

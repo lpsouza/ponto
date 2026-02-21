@@ -1,7 +1,7 @@
 ---
 id: SPEC-003
 feature: Time Clock (Core)
-status: Draft
+status: Doing
 priority: Critical
 ---
 
