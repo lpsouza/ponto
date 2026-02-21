@@ -1,118 +1,76 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { pb } from '../../lib/pocketbase'
-import { UsersRecord } from '../../types/pocketbase.types'
+import { useStore } from '../../store/useStore'
+import type { User } from '../../types/pocketbase-types'
 
 interface AuthContextType {
-    user: UsersRecord | null
-    profile: UsersRecord | null
-    loading: boolean
-    signInWithGoogle: () => Promise<void>
-    signOut: () => void
-    refreshProfile: () => Promise<void>
+    user: User | null
+    isLoading: boolean
+    login: () => Promise<void>
+    logout: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<UsersRecord | null>(pb.authStore.record as UsersRecord | null || pb.authStore.model as UsersRecord | null)
-    const [loading, setLoading] = useState(true)
-
-    // Force clear all auth state and redirect to login
-    const forceLogout = () => {
-        pb.authStore.clear()
-        window.location.href = '/login'
-    }
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const { user, setUser, logout: storeLogout } = useStore()
+    const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
-        let mounted = true
-
-        const initialize = async () => {
-            try {
-                if (pb.authStore.isValid && (pb.authStore.model || pb.authStore.record)) {
-                    // Refresh token
-                    await pb.collection('users').authRefresh()
-                    if (mounted) {
-                        setUser((pb.authStore.record || pb.authStore.model) as UsersRecord)
-                    }
-                } else {
-                    pb.authStore.clear()
-                    if (mounted) {
-                        setUser(null)
-                    }
-                }
-            } catch (err) {
-                console.error('Failed to restore auth session:', err)
-                pb.authStore.clear()
-                if (mounted) setUser(null)
-            } finally {
-                if (mounted) setLoading(false)
+        // Initial sync with PocketBase auth store
+        const syncAuth = () => {
+            if (pb.authStore.isValid && pb.authStore.model) {
+                setUser(pb.authStore.model as unknown as User)
+            } else {
+                setUser(null)
             }
+            setIsLoading(false)
         }
 
-        initialize()
+        syncAuth()
 
-        // Listen for pb.authStore changes
-        const unsubscribe = pb.authStore.onChange((_token: string, model: any) => {
-            if (mounted) {
-                setUser((model as UsersRecord) || null)
-            }
+        // Listen for auth state changes
+        return pb.authStore.onChange(() => {
+            syncAuth()
         })
+    }, [setUser])
 
-        return () => {
-            mounted = false
-            unsubscribe()
-        }
-    }, [])
-
-    const signInWithGoogle = async () => {
+    const login = async () => {
         try {
-            // No PocketBase v0.20+, a maneira recomendada e mais simples em SPA é usar a chamada built-in
-            // que cuida do pop-up. Porém, se o provider não existir, a API retorna undefined na listagem.
-            const authMethods = await pb.collection('users').listAuthMethods()
-            const googleProvider = authMethods.authProviders.find((p: any) => p.name === 'google')
+            console.log('Buscando métodos de autenticação...');
+            const authMethods = await pb.collection('users').listAuthMethods();
+            console.log('Métodos disponíveis:', authMethods);
 
+            if (!authMethods.oauth2 || !authMethods.oauth2.enabled || authMethods.oauth2.providers.length === 0) {
+                throw new Error('Nenhum provedor de OAuth2 (Google) está habilitado no PocketBase.');
+            }
+
+            const googleProvider = authMethods.oauth2.providers.find(p => p.name === 'google');
             if (!googleProvider) {
-                console.error("Provedor Google não encontrado ou desabilitado no PocketBase admin.")
-                alert("O Login com o Google não está configurado ou habilitado no banco de dados local.")
-                return
+                throw new Error('Provedor Google não encontrado na lista de métodos permitidos.');
             }
 
-            await pb.collection('users').authWithOAuth2({ provider: 'google' })
-            // Once succesful, LoginPage handles the navigation to /dashboard.
+            // Use Google OAuth2
+            await pb.collection('users').authWithOAuth2({ provider: 'google' });
         } catch (error) {
-            console.error('Error signing in with Google:', error)
+            console.error('Login failed:', error);
+            alert(error instanceof Error ? error.message : 'Falha na autenticação');
+            throw error;
         }
     }
 
-    const signOut = () => {
-        forceLogout()
+    const logout = () => {
+        pb.authStore.clear()
+        storeLogout()
     }
 
-    const refreshProfile = async () => {
-        const id = pb.authStore.record?.id || pb.authStore.model?.id;
-        if (id) {
-            try {
-                const refreshed = await pb.collection('users').getOne<UsersRecord>(id)
-                setUser(refreshed)
-            } catch (error) {
-                console.error('Error refreshing profile:', error)
-            }
-        }
-    }
-
-    const value = {
-        user,
-        profile: user,
-        loading,
-        signInWithGoogle,
-        signOut,
-        refreshProfile
-    }
-
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+    return (
+        <AuthContext.Provider value={{ user, isLoading, login, logout }}>
+            {children}
+        </AuthContext.Provider>
+    )
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
     const context = useContext(AuthContext)
     if (context === undefined) {
