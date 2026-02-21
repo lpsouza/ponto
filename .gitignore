@@ -27,3 +27,7 @@ dist-ssr
 implementation_plan.md
 task.md
 walkthrough.md
+
+# Playwright
+playwright-report/
+test-results/
