@@ -1,0 +1,10 @@
+services:
+  # Production build (Frontend + PocketBase in a single container)
+  production:
+    build: .
+    container_name: ponto-app-prod
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./pb_data:/pb/pb_data
+    restart: unless-stopped

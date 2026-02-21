@@ -1,2 +1,0 @@
-// Este arquivo serve apenas para manter a pasta pb_migrations no versionamento do Git.
-// O PocketBase irá gerar arquivos de migração reais aqui quando rodado com --automigrate.

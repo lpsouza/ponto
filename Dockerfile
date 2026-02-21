@@ -1,5 +1,5 @@
-# Stage 1: Build Frontend
-FROM node:20-alpine AS builder
+# Stage 1: Build React app
+FROM node:20-alpine AS build-stage
 
 WORKDIR /app
 
@@ -9,36 +9,30 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Stage 2: PocketBase Server
-FROM alpine:latest
+# Stage 2: PocketBase
+FROM alpine:latest AS production-stage
 
-# Install CA certificates and unzip
-RUN apk add --no-cache ca-certificates unzip wget
+# Install dependencies for PocketBase (unzip, ca-certificates)
+RUN apk add --no-cache \
+    unzip \
+    ca-certificates \
+    curl
 
-# Download PocketBase
-ARG PB_VERSION=0.26.8
-RUN wget https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_linux_amd64.zip \
-    && unzip pocketbase_${PB_VERSION}_linux_amd64.zip \
-    && chmod +x /pocketbase \
-    && rm pocketbase_${PB_VERSION}_linux_amd64.zip
+# PocketBase version
+ENV PB_VERSION=0.36.4
 
-# Create directories for PocketBase
-RUN mkdir -p /pb/pb_data /pb/pb_migrations /pb/pb_public
+# Download and install PocketBase
+ADD https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_linux_amd64.zip /tmp/pb.zip
+RUN unzip /tmp/pb.zip -d /pb/ && \
+    rm /tmp/pb.zip
 
-# Copy the PocketBase binary
-RUN cp /pocketbase /pb/pocketbase
+# Copy the built frontend to PocketBase's public folder
+COPY --from=build-stage /app/dist /pb/pb_public
+COPY ./pb_hooks /pb/pb_hooks
 
-# Copy the compiled Vite frontend to pb_public
-COPY --from=builder /app/dist /pb/pb_public
+EXPOSE 8080
 
-# Copy migration files (if any exist locally)
-COPY pb_migrations /pb/pb_migrations
-
-WORKDIR /pb
-
-# Expose the default PocketBase port
-EXPOSE 8090
-
-# Start PocketBase. We assume migrations are managed via UI and generated into pb_migrations,
-# but the container will automatically apply them on startup if present.
-CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8090"]
+# Start PocketBase and serve the app
+# --http=0.0.0.0:8080 allows external access
+# --dir=/pb/pb_data ensures data persistence if mounted as volume
+CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8080", "--dir=/pb/pb_data"]
