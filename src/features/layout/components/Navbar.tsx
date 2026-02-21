@@ -2,9 +2,14 @@ import { useAuth } from '../../auth/AuthProvider'
 import { CompanySelector } from '../../companies/components/CompanySelector'
 import { LogOut, User } from 'lucide-react'
 import styles from './Navbar.module.css'
+import { pb } from '../../../lib/pocketbase'
 
 export const Navbar = () => {
     const { user, logout } = useAuth()
+
+    const avatarUrl = user?.avatar
+        ? pb.files.getUrl(user as any, user.avatar)
+        : null
 
     return (
         <nav className={styles.navbar}>
@@ -26,8 +31,8 @@ export const Navbar = () => {
                         <span className={styles.userStatus}>Online</span>
                     </div>
                     <div className={styles.avatar}>
-                        {user?.avatar ? (
-                            <img src={user.avatar} alt={user.name} />
+                        {avatarUrl ? (
+                            <img src={avatarUrl} alt={user?.name} />
                         ) : (
                             <User size={20} />
                         )}

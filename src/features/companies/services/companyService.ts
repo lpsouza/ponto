@@ -4,17 +4,25 @@ import { CollectionName } from '../../../types/pocketbase-types'
 
 export const companyService = {
     async getCompanies() {
-        return await pb.collection(CollectionName.Companies).getFullList<Company>()
+        return await pb.collection(CollectionName.Companies).getFullList<Company>({
+            requestKey: null
+        })
     },
 
     async createCompany(name: string, settings: any = {}) {
-        if (!pb.authStore.model) throw new Error('User must be authenticated')
+        const authModel = pb.authStore.model
+        if (!authModel) throw new Error('User must be authenticated')
 
-        return await pb.collection(CollectionName.Companies).create<Company>({
-            name,
-            user: pb.authStore.model.id,
-            settings
-        })
+        try {
+            return await pb.collection(CollectionName.Companies).create<Company>({
+                name,
+                user: authModel.id,
+                settings
+            })
+        } catch (error: any) {
+            console.error('Error creating company details:', error.data)
+            throw error
+        }
     },
 
     async updateCompany(id: string, name: string, settings: any) {
