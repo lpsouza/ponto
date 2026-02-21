@@ -17,7 +17,6 @@ As a developer, I need a solid foundation with configured tools so that I can bu
 
 - [x] Initialize **Vite** project with **React** and **TypeScript**.
 - [x] Clean up default Vite boilerplate.
-
 ### 1.2 PWA Configuration
 
 - [x] Install `vite-plugin-pwa`.
@@ -58,12 +57,14 @@ As a developer, I need a solid foundation with configured tools so that I can bu
 ### 1.7 Hosting & Deployment
 
 - [x] Create `Dockerfile` for production build (Multi-stage).
+    - [x] Stage 1: Build React app.
+    - [x] Stage 2: PocketBase image, copy `dist/` to `pb_public/`.
 - [x] Create `docker-compose.yml` for easy orchestration.
-- [x] Configure `nginx.conf` as a reverse proxy for the container.
-- [x] Ensure the container handles `SPA` routing (Client-side routing fallback).
+- [x] Ensure PocketBase handles **SPA routing** (Redirecting unknown requests to `index.html`).
 
 ## Technical Notes
 
 - **Stack**: React, Vite, TS, PocketBase, Zustand.
-- **Hosting**: Self-hosted (Docker + Nginx).
+- **Hosting**: Self-hosted (Docker + PocketBase *include hosting app files in pb_public folder*).
 - **Offline Strategy**: Service Worker for assets; LocalStorage for data (initially).
+- **Migration Strategy**: Use PocketBase native JS migrations. Schema changes must be defined in the respective feature SPEC and implemented as timestamped JS files in `pb_migrations/`.
