@@ -1,3 +1,4 @@
+---
 id: SPEC-002
 feature: Authentication & User Profile
 status: Done
@@ -15,10 +16,10 @@ As a Freelancer/Multi-job professional, I want to create multiple "Companies" (e
 
 ### 2.1 User Registration & Login
 
-- [ ] **OAuth2 Only**: Users log in using their Google account via PocketBase Auth.
-- [ ] **Auto-Registration**: First-time login automatically creates a `users` record in PocketBase.
+- [x] **OAuth2 Only**: Users log in using their Google account via PocketBase Auth.
+- [x] **Auto-Registration**: First-time login automatically creates a `users` record in PocketBase.
 - [ ] **Profile Sync**: Automatically fetch `name` and `avatarUrl` from Google metadata on first login.
-- [ ] **Record Linking**: Utilize the default `users` collection in PocketBase to store profile data natively.
+- [x] **Record Linking**: Utilize the default `users` collection in PocketBase to store profile data natively.
 
 ### 2.2 Workspace / Company Management (Multi-Context)
 
@@ -26,22 +27,22 @@ This feature allows the user to manage multiple professional "contexts" or "comp
 
 - [x] **Manage Companies (CRUD)**:
     - **Create**: Add a new workspace (e.g., "Google (CLT)", "Freelance Client A").
-    - **Edit**: Update settings like "Daily Hours Target" (e.g., 8h for CLT, 4h for Part-time) or "Timezone".
-    - **Delete**: Archive or remove a workspace (and its associated records, or keep them archived).
+    - [x] **Edit**: Update settings like "Daily Hours Target" (e.g., 8h for CLT, 4h for Part-time) or "Timezone".
+    - [x] **Delete**: Archive or remove a workspace (and its associated records, or keep them archived).
 - [x] **Context Switching**:
-    - Global selector (in Navbar/Sidebar) to switch the "Active Company".
-    - Storing the `active_company_id` in the user's `profile` preferences ensures the app remembers the last context on reload.
-    - All dashboard metrics and time records are filtered by the currently Active Company.
+    - [x] Global selector (in Navbar/Sidebar) to switch the "Active Company".
+    - [x] Storing the `active_company_id` in the user's `profile` preferences ensures the app remembers the last context on reload.
+    - [x] All dashboard metrics and time records are filtered by the currently Active Company.
 
 ### 2.3 API Rules (Security)
 
-- [ ] **Users Collection**: Users can read/update their own profile (`id = @request.auth.id`).
-- [ ] **Companies Collection**: Users can CRUD companies where `user` matches their ID (`user = @request.auth.id`).
+- [x] **Users Collection**: Users can read/update their own profile (`id = @request.auth.id`).
+- [x] **Companies Collection**: Users can CRUD companies where `user` matches their ID (`user = @request.auth.id`).
 - [ ] **TimeRecords Collection**: Users can CRUD records where `user` matches their ID.
 
 ### 2.5 Session Handling
 
-- [ ] **Expiration Redirect**: If the session expires or is invalidated using `pb.authStore`, the user must be automatically redirected to the Login page.
+- [x] **Expiration Redirect**: If the session expires or is invalidated using `pb.authStore`, the user must be automatically redirected to the Login page.
 
 ### 2.4 Data Model
 
