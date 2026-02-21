@@ -5,6 +5,7 @@ import styles from './TimeClock.module.css'
 import { Play, Square, Trash2, Edit2, Plus, ChevronLeft, ChevronRight } from 'lucide-react'
 import { EntryModal } from './EntryModal'
 import type { TimeRecord } from '../../../types/pocketbase-types'
+import { isToday, shiftDate } from '../../../utils/dateUtils'
 
 export const TimeClock: React.FC = () => {
     const { records, isLoading, fetchRecords, clockIn, clockOut, deleteRecord, addManualEntry, updateRecord } = useTimeClockStore()
@@ -55,27 +56,18 @@ export const TimeClock: React.FC = () => {
     }
 
     const handlePrevDay = () => {
-        const d = new Date(selectedDate)
-        d.setDate(d.getDate() - 1)
-        setSelectedDate(d)
+        setSelectedDate(shiftDate(selectedDate, -1))
     }
 
     const handleNextDay = () => {
-        const d = new Date(selectedDate)
-        d.setDate(d.getDate() + 1)
-        setSelectedDate(d)
+        setSelectedDate(shiftDate(selectedDate, 1))
     }
 
     const handleToday = () => {
         setSelectedDate(new Date())
     }
 
-    const isToday = (date: Date) => {
-        const today = new Date()
-        return date.getDate() === today.getDate() &&
-            date.getMonth() === today.getMonth() &&
-            date.getFullYear() === today.getFullYear()
-    }
+    const isTodaySelected = isToday(selectedDate)
 
     return (
         <div className={styles.container}>
@@ -89,7 +81,7 @@ export const TimeClock: React.FC = () => {
                 <button onClick={handleNextDay} className={styles.iconButton} title="Próximo dia">
                     <ChevronRight size={24} />
                 </button>
-                {!isToday(selectedDate) && (
+                {!isTodaySelected && (
                     <button onClick={handleToday} className={styles.todayButton}>
                         Hoje
                     </button>

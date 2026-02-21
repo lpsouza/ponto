@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import styles from './EntryModal.module.css'
 import { X } from 'lucide-react'
 import type { TimeRecord } from '../../../types/pocketbase-types'
+import { formatDateForInput, formatTimeForInput, parseDateTime } from '../../../utils/dateUtils'
 
 interface EntryModalProps {
     isOpen: boolean
@@ -23,15 +24,15 @@ export const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, onSave,
             if (initialData) {
                 const d = new Date(initialData.timestamp)
                 setType(initialData.type as 'start' | 'finish')
-                setDate(d.toISOString().split('T')[0])
-                setTime(d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }))
+                setDate(formatDateForInput(d))
+                setTime(formatTimeForInput(d))
                 setNotes(initialData.notes || '')
                 setLocation(initialData.location || '')
             } else {
                 const d = new Date()
                 setType('start')
-                setDate(d.toISOString().split('T')[0])
-                setTime(d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }))
+                setDate(formatDateForInput(d))
+                setTime(formatTimeForInput(d))
                 setNotes('')
                 setLocation('')
             }
@@ -44,10 +45,7 @@ export const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, onSave,
         e.preventDefault()
         setIsLoading(true)
         try {
-            // Create date object from inputs
-            const [year, month, day] = date.split('-').map(Number)
-            const [hours, minutes] = time.split(':').map(Number)
-            const timestamp = new Date(year, month - 1, day, hours, minutes).toISOString()
+            const timestamp = parseDateTime(date, time).toISOString()
 
             await onSave({ type, timestamp, notes, location })
             onClose()
