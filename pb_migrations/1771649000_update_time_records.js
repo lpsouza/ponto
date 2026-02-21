@@ -48,6 +48,10 @@ migrate((app) => {
                 "type": "text"
             },
             {
+                "name": "location",
+                "type": "text"
+            },
+            {
                 "name": "created",
                 "type": "autodate",
                 "system": true,

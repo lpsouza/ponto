@@ -1,7 +1,7 @@
 ---
 id: SPEC-003
-feature: Time Clock (Core)
-status: Doing
+feature: Time Clock & Entry Management
+status: Done
 priority: Critical
 ---
 
@@ -15,33 +15,33 @@ As a Trust Position Professional, I want to freely register when I enter and lea
 
 ### 3.1 Tracker Interface
 
-- [ ] Display **Current Time** and **Accumulated Time Today** (sum of all completed blocks + active block).
-- [ ] **Current Stickiness**: Show **"Registrar Entrada"** when idle, **"Registrar Saída"** when working.
-    - **Mapped Types**: `start` (Entrada) and `finish` (Saída).
-- [ ] **Manual Entry**: Form to add records with specific types.
-- [ ] **Timeline**: Show today's records in **chronological order** (earliest to latest), clearly displaying work blocks and any open (active) block at the end.
-- [ ] **Edit Interface**: Editing and manual entry should be presented in a clear, accessible modal with distinct actions (Save, Cancel, Delete).
+- [x] Display **Current Time** and **Accumulated Time Today** (sum of all completed blocks + active block).
+- [x] **Current Stickiness**: Show **"Registrar Entrada"** when idle, **"Registrar Saída"** when working.
+    - [x] **Mapped Types**: `start` (Entrada) and `finish` (Saída).
+- [x] **Manual Entry**: Form to add records with specific types.
+- [x] **Timeline**: Show today's records in **chronological order** (earliest to latest), clearly displaying work blocks and any open (active) block at the end.
+- [x] **Edit Interface**: Editing and manual entry should be presented in a clear, accessible modal with distinct actions (Save, Cancel, Delete).
 
 ### 3.2 Work Blocks
 
-- [ ] Each `start`/`finish` pair forms a **work block**.
-- [ ] Multiple blocks per day are **summed** for the daily total.
-- [ ] A `start` without a matching `finish` is treated as an **active block**.
-- [ ] **Schema Support**: The database supports `start`, `pause`, `resume`, `finish` to accommodate future features or legacy data, though the current UI focuses on start/finish flows.
-- [ ] **No blocking**: Users can freely add entries and exits in any order, edit past records, and delete them. The system does not enforce sequential rules.
+- [x] Each `start`/`finish` pair forms a **work block**.
+- [x] Multiple blocks per day are **summed** for the daily total.
+- [x] A `start` without a matching `finish` is treated as an **active block**.
+- [x] **Schema Support**: The database supports `start`, `pause`, `resume`, `finish` to accommodate future features or legacy data, though the current UI focuses on start/finish flows.
+- [x] **No blocking**: Users can freely add entries and exits in any order, edit past records, and delete them. The system does not enforce sequential rules.
 
 ### 3.3 Context & Location
 
-- [ ] Optional: Capture location for personal context (e.g., "Worked from Home" vs "Office").
-- [ ] **No blocking**: Never block an action based on location.
+- [x] Optional: Capture location for personal context (e.g., "Worked from Home" vs "Office").
+- [x] **No blocking**: Never block an action based on location.
 
 ### 3.4 History & Editing
 
-- [ ] **Date Navigation**: User can navigate to past dates to view and edit history.
-- [ ] **Edit Records**: User can edit the timestamp and type of existing records.
-- [ ] **Delete Records**: User can delete existing records.
-- [ ] **Manual Entry Context**: Manual entry form defaults to the currently selected date.
-- [ ] **Date Format**: Input fields must display dates in **DD/MM/YYYY** format (Brazilian standard).
+- [x] **Date Navigation**: User can navigate to past dates to view and edit history.
+- [x] **Edit Records**: User can edit the timestamp and type of existing records.
+- [x] **Delete Records**: User can delete existing records.
+- [x] **Manual Entry Context**: Manual entry form defaults to the currently selected date.
+- [x] **Date Format**: Input fields must display dates in **DD/MM/YYYY** format (Brazilian standard).
 
 ### 3.5 Offline Persistence & Sync
 

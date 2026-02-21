@@ -23,13 +23,17 @@ export interface User extends BaseRecord {
 
 export interface Company extends BaseRecord {
     name: string
-    owner: string // User ID
+    user: string // User ID
 }
 
 export interface TimeRecord extends BaseRecord {
     user: string // User ID
     company: string // Company ID
-    type: 'entry' | 'exit'
+    type: 'start' | 'pause' | 'resume' | 'finish'
     timestamp: string // ISO date string
+    is_manual_entry: boolean
     notes?: string
+    location?: string
 }
+
+
