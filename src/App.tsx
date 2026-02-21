@@ -3,6 +3,7 @@ import LoginPage from './features/auth/pages/LoginPage'
 import { Navbar } from './features/layout/components/Navbar'
 import { PlusCircle } from 'lucide-react'
 import { useStore } from './store/useStore'
+import { TimeClock } from './features/time_clock/components/TimeClock'
 
 function App() {
   const { user, isLoading } = useAuth()
@@ -78,25 +79,9 @@ function App() {
               </p>
             </section>
 
-            {/* Dashboard placeholder */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: 'var(--spacing-lg)'
-            }}>
-              {[1, 2, 3].map(i => (
-                <div key={i} style={{
-                  height: '160px',
-                  background: 'var(--color-surface-lvl1)',
-                  borderRadius: 'var(--radius-lg)',
-                  border: '1px solid var(--color-surface-lvl3)',
-                  padding: 'var(--spacing-lg)'
-                }}>
-                  <div style={{ width: '40%', height: '12px', background: 'var(--color-surface-lvl3)', borderRadius: 'var(--radius-full)', marginBottom: 'var(--spacing-md)' }}></div>
-                  <div style={{ width: '80%', height: '24px', background: 'var(--color-surface-lvl2)', borderRadius: 'var(--radius-full)' }}></div>
-                </div>
-              ))}
-            </div>
+            {/* Main Time Clock Feature */}
+            <TimeClock />
+
           </div>
         )}
       </main>
