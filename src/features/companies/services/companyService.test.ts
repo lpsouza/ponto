@@ -61,4 +61,30 @@ describe('companyService', () => {
         // @ts-ignore
         pb.authStore.model = { id: 'user-123' }
     })
+
+    it('should handle creation error', async () => {
+        mockCollection.create.mockRejectedValue({ data: 'Some error' })
+        await expect(companyService.createCompany('Fail')).rejects.toEqual({ data: 'Some error' })
+    })
+
+    it('should update a company', async () => {
+        mockCollection.update.mockResolvedValue({ id: '1', name: 'Updated' })
+
+        const result = await companyService.updateCompany('1', 'Updated', { hours: 9 })
+
+        expect(mockCollection.update).toHaveBeenCalledWith('1', {
+            name: 'Updated',
+            settings: { hours: 9 }
+        })
+        expect(result.name).toBe('Updated')
+    })
+
+    it('should delete a company', async () => {
+        mockCollection.delete.mockResolvedValue(true)
+
+        const result = await companyService.deleteCompany('1')
+
+        expect(mockCollection.delete).toHaveBeenCalledWith('1')
+        expect(result).toBe(true)
+    })
 })

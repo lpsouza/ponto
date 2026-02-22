@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { useStore } from './useStore'
 
 describe('useStore', () => {
@@ -30,6 +30,12 @@ describe('useStore', () => {
         useStore.getState().setActiveCompanyId(companyId)
 
         expect(useStore.getState().activeCompanyId).toBe(companyId)
+    })
+
+    it('should set current company correctly', () => {
+        const mockCompany = { id: 'c1', name: 'Company 1' } as any
+        useStore.getState().setCurrentCompany(mockCompany)
+        expect(useStore.getState().currentCompany).toEqual(mockCompany)
     })
 
     it('should clear state on logout', () => {

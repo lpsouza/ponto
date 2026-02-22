@@ -66,6 +66,18 @@ describe('useTimeClockStore', () => {
         expect(state.records[0].id).toBe('r1')
     })
 
+    it('should fetch records successfully', async () => {
+        const mockRecords = [{ id: 'r1', timestamp: '2026-02-21T10:00:00Z' }]
+        mockCollection.getFullList.mockResolvedValue(mockRecords)
+
+        await useTimeClockStore.getState().fetchRecords(new Date('2026-02-21'))
+
+        expect(mockCollection.getFullList).toHaveBeenCalled()
+        const state = useTimeClockStore.getState()
+        expect(state.records).toEqual(mockRecords)
+        expect(state.isLoading).toBe(false)
+    })
+
     it('should handle fetch errors', async () => {
         mockCollection.getFullList.mockRejectedValue(new Error('Network error'))
 
@@ -74,5 +86,129 @@ describe('useTimeClockStore', () => {
         const state = useTimeClockStore.getState()
         expect(state.isLoading).toBe(false)
         expect(state.error).toBe('Network error')
+    })
+
+    it('should handle missing user or company when fetching', async () => {
+        // @ts-ignore
+        useStore.getState.mockReturnValue({ user: null, activeCompanyId: null })
+
+        await useTimeClockStore.getState().fetchRecords(new Date())
+
+        const state = useTimeClockStore.getState()
+        expect(state.records).toEqual([])
+    })
+
+    it('should clock out successfully', async () => {
+        const mockResponse = { id: 'r2', type: 'finish', timestamp: '2026-02-21T18:00:00Z' }
+        mockCollection.create.mockResolvedValue(mockResponse)
+
+        await useTimeClockStore.getState().clockOut('Work finish')
+
+        expect(mockCollection.create).toHaveBeenCalledWith(expect.objectContaining({
+            type: 'finish',
+            notes: 'Work finish'
+        }))
+
+        const state = useTimeClockStore.getState()
+        expect(state.records.find(r => r.id === 'r2')).toBeDefined()
+    })
+
+    it('should add manual entry successfully', async () => {
+        const mockData = { type: 'pause' as const, timestamp: '2026-02-21T12:00:00Z' }
+        const mockResponse = { ...mockData, id: 'r3', is_manual_entry: true }
+        mockCollection.create.mockResolvedValue(mockResponse)
+
+        await useTimeClockStore.getState().addManualEntry(mockData)
+
+        expect(mockCollection.create).toHaveBeenCalledWith(expect.objectContaining({
+            ...mockData,
+            is_manual_entry: true
+        }))
+    })
+
+    it('should update a record and keep others unchanged', async () => {
+        const mockRecords = [
+            { id: 'r1', timestamp: '2026-02-21T10:00:00Z', notes: 'Old' },
+            { id: 'r2', timestamp: '2026-02-21T11:00:00Z', notes: 'Other' }
+        ]
+        useTimeClockStore.setState({ records: mockRecords as any })
+
+        const mockResponse = { id: 'r1', timestamp: '2026-02-21T10:00:00Z', notes: 'Updated' }
+        mockCollection.update.mockResolvedValue(mockResponse)
+
+        await useTimeClockStore.getState().updateRecord('r1', { notes: 'Updated' })
+
+        const state = useTimeClockStore.getState()
+        expect(state.records.find(r => r.id === 'r1')?.notes).toBe('Updated')
+        expect(state.records.find(r => r.id === 'r2')?.notes).toBe('Other')
+    })
+
+    it('should delete record successfully', async () => {
+        mockCollection.delete.mockResolvedValue(true)
+        useTimeClockStore.setState({ records: [{ id: 'r1' } as any] })
+
+        await useTimeClockStore.getState().deleteRecord('r1')
+
+        expect(mockCollection.delete).toHaveBeenCalledWith('r1')
+        const state = useTimeClockStore.getState()
+        expect(state.records).toHaveLength(0)
+    })
+
+    it('should clock in and keep records sorted', async () => {
+        useTimeClockStore.setState({ records: [{ id: 'r2', timestamp: '2026-02-21T12:00:00Z' } as any] })
+        const mockResponse = { id: 'r1', type: 'start', timestamp: '2026-02-21T10:00:00Z' }
+        mockCollection.create.mockResolvedValue(mockResponse)
+
+        await useTimeClockStore.getState().clockIn()
+
+        const state = useTimeClockStore.getState()
+        expect(state.records).toHaveLength(2)
+        expect(state.records[0].id).toBe('r1') // Should be first due to earlier timestamp
+        expect(state.records[1].id).toBe('r2')
+    })
+
+    it('should clock out/add manual entry and keep records sorted', async () => {
+        useTimeClockStore.setState({ records: [{ id: 'r1', timestamp: '2026-02-21T10:00:00Z' } as any] })
+
+        // Clock out earlier than another record (just for sort testing)
+        mockCollection.create.mockResolvedValue({ id: 'r0', timestamp: '2026-02-21T09:00:00Z' })
+        await useTimeClockStore.getState().clockOut()
+        expect(useTimeClockStore.getState().records[0].id).toBe('r0')
+
+        // Manual record
+        mockCollection.create.mockResolvedValue({ id: 'r3', timestamp: '2026-02-21T11:00:00Z' })
+        await useTimeClockStore.getState().addManualEntry({ type: 'finish', timestamp: '2026-02-21T11:00:00Z' })
+        expect(useTimeClockStore.getState().records[2].id).toBe('r3')
+    })
+
+    it('should handle errors in all actions', async () => {
+        mockCollection.create.mockRejectedValue(new Error('Create error'))
+        await useTimeClockStore.getState().clockIn()
+        expect(useTimeClockStore.getState().error).toBe('Create error')
+
+        await useTimeClockStore.getState().clockOut()
+        expect(useTimeClockStore.getState().error).toBe('Create error')
+
+        await useTimeClockStore.getState().addManualEntry({} as any)
+        expect(useTimeClockStore.getState().error).toBe('Create error')
+
+        mockCollection.update.mockRejectedValue(new Error('Update error'))
+        await useTimeClockStore.getState().updateRecord('1', {})
+        expect(useTimeClockStore.getState().error).toBe('Update error')
+
+        mockCollection.delete.mockRejectedValue(new Error('Delete error'))
+        await useTimeClockStore.getState().deleteRecord('1')
+        expect(useTimeClockStore.getState().error).toBe('Delete error')
+    })
+
+    it('should handle missing user or company in actions', async () => {
+        // @ts-ignore
+        useStore.getState.mockReturnValue({ user: null, activeCompanyId: null })
+
+        await useTimeClockStore.getState().clockIn()
+        await useTimeClockStore.getState().clockOut()
+        await useTimeClockStore.getState().addManualEntry({} as any)
+
+        expect(mockCollection.create).not.toHaveBeenCalled()
     })
 })

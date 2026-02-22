@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { isToday, shiftDate, formatDateForInput, formatTimeForInput, parseDateTime } from './dateUtils'
+import { isToday, shiftDate, formatDateForInput, formatTimeForInput, parseDateTime, getLocalDateString, formatForPB, parsePBDate } from './dateUtils'
 
 describe('dateUtils', () => {
     beforeEach(() => {
@@ -60,6 +60,37 @@ describe('dateUtils', () => {
             expect(parsed.getDate()).toBe(21)
             expect(parsed.getHours()).toBe(14)
             expect(parsed.getMinutes()).toBe(30)
+        })
+    })
+
+    describe('getLocalDateString', () => {
+        it('should return YYYY-MM-DD', () => {
+            const date = new Date(2026, 1, 21)
+            expect(getLocalDateString(date)).toBe('2026-02-21')
+        })
+    })
+
+    describe('formatForPB', () => {
+        it('should return PocketBase format', () => {
+            const date = new Date('2026-02-21T18:00:00Z')
+            expect(formatForPB(date)).toBe('2026-02-21 18:00:00.000')
+        })
+    })
+
+    describe('parsePBDate', () => {
+        it('should parse PB format with space', () => {
+            const date = parsePBDate('2026-02-21 18:00:00')
+            expect(date.toISOString()).toBe('2026-02-21T18:00:00.000Z')
+        })
+
+        it('should parse ISO format', () => {
+            const date = parsePBDate('2026-02-21T18:00:00Z')
+            expect(date.toISOString()).toBe('2026-02-21T18:00:00.000Z')
+        })
+
+        it('should return new Date for empty input', () => {
+            const date = parsePBDate('')
+            expect(date).toBeInstanceOf(Date)
         })
     })
 })
