@@ -14,7 +14,7 @@ services:
     working_dir: /pb
     command: >
       sh -c "
-        apk add --no-cache unzip ca-certificates curl &&
+        apk add --no-cache unzip ca-certificates curl sqlite &&
         if [ ! -f pocketbase ]; then
           curl -L https://github.com/pocketbase/pocketbase/releases/download/v$${PB_VERSION}/pocketbase_$${PB_VERSION}_linux_amd64.zip -o pb.zip &&
           unzip pb.zip &&

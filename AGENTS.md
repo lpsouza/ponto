@@ -52,7 +52,7 @@ It helps users track their "real" hours to avoid **overworking (Burnout)** or **
 **Crucial**: We follow a strict Spec-Driven Development process.
 
 1. **Specs First**: No code is written without a corresponding specification in `/specs`.
-2. **Single Source of Truth**: The `SPEC-XXX.md` file is the master document for a feature.
+2. **Single Source of Truth**: The `SPEC-XXX.md` files are the **ONLY source of truth** for what the code needs to do.
 3. **Workflow**:
    - Read the specific SPEC file (e.g., `specs/SPEC-001-Infrastructure.md`).
    - Implement the requirements one by one.
@@ -63,7 +63,10 @@ It helps users track their "real" hours to avoid **overworking (Burnout)** or **
      - `Doing`: Currently in development.
      - `Done`: Completed.
    - **MANDATORY**: Update the `README.md` file status table whenever a SPEC is completed or its status changes.
-4. **Updates**: If technical details change, update the SPEC file to reflect reality.
+4. **Maintenance & Consistency**: 
+   - Whenever any part of the system or its requirements changes, the agent **MUST** review **ALL** existing SPECs.
+   - Update any SPEC that is affected by the changed characteristics, ensuring they reflect the current implementation (marking as completed or not as appropriate).
+5. **Updates**: If technical details change, update the SPEC file to reflect reality.
 
 ## Development Workflow
 

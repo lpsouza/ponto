@@ -16,7 +16,8 @@ FROM alpine:latest AS production-stage
 RUN apk add --no-cache \
     unzip \
     ca-certificates \
-    curl
+    curl \
+    sqlite
 
 # PocketBase version
 ENV PB_VERSION=0.36.4

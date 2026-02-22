@@ -27,8 +27,8 @@ This feature allows the user to manage multiple professional "contexts" or "comp
 
 - [x] **Manage Companies (CRUD)**:
     - **Create**: Add a new workspace (e.g., "Google (CLT)", "Freelance Client A").
-    - [x] **Edit**: Update settings like "Daily Hours Target" (e.g., 8h for CLT, 4h for Part-time) or "Timezone".
-    - [x] **Delete**: Archive or remove a workspace (and its associated records, or keep them archived).
+    - [ ] **Edit**: Update settings like "Daily Hours Target" (e.g., 8h for CLT, 4h for Part-time) or "Timezone" (Service ready, UI pending).
+    - [ ] **Delete**: Archive or remove a workspace (Service ready, UI pending).
 - [x] **Context Switching**:
     - [x] Global selector (in Navbar/Sidebar) to switch the "Active Company".
     - [x] Storing the `active_company_id` in the user's `profile` preferences ensures the app remembers the last context on reload.
@@ -38,7 +38,7 @@ This feature allows the user to manage multiple professional "contexts" or "comp
 
 - [x] **Users Collection**: Users can read/update their own profile (`id = @request.auth.id`).
 - [x] **Companies Collection**: Users can CRUD companies where `user` matches their ID (`user = @request.auth.id`).
-- [ ] **TimeRecords Collection**: Users can CRUD records where `user` matches their ID.
+- [x] **TimeRecords Collection**: Users can CRUD records where `user` matches their ID (`user = @request.auth.id`).
 
 ### 2.5 Session Handling
 
@@ -48,17 +48,17 @@ This feature allows the user to manage multiple professional "contexts" or "comp
 
 **Collection: users**
 
-- `id`: string (PK)
-- `name`: text
-- `avatarUrl`: url
-- `preferences`: json (active_company_id, theme)
+- [x] `id`: string (PK)
+- [x] `name`: text
+- [x] `avatarUrl`: url (Linked to PocketBase `avatar` field)
+- [x] `preferences`: json (active_company_id, theme)
 
 **Collection: companies**
 
-- `id`: string (PK)
-- `user`: relation -> users
-- `name`: text
-- `settings`: json (default_hours, timezone)
+- [x] `id`: string (PK)
+- [x] `user`: relation -> users
+- [x] `name`: text
+- [x] `settings`: json (default_hours, timezone)
 
 ## Testing
 
