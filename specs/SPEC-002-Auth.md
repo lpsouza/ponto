@@ -70,4 +70,5 @@ This feature allows the user to manage multiple professional "contexts" or "comp
 ## Technical Notes
 
 - **PocketBase Auth**: Enable Google Provider only. Disable Email/Password provider if possible, or hide it from the UI.
+- **Automation**: Google OAuth2 configuration is automated via migrations using `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` environment variables.
 - **UX**: Simple "Continue with Google" button. No registration forms needed.

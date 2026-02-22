@@ -33,6 +33,13 @@ Ponto Livre is a modern **Time Balance Tracker** designed for professionals in t
 - Node.js (v20+)
 - Docker & Docker Compose
 
+### Configuration
+
+To enable Google OAuth2 login:
+1. Copy `.env.example` to `.env`.
+2. Fill in `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`.
+3. Restart PocketBase (`npm run pb:restart`).
+
 ### Getting Started
 
 1. Install dependencies:
