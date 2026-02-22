@@ -5,7 +5,7 @@ import styles from './TimeClock.module.css'
 import { Play, Square, Trash2, Edit2, Plus, ChevronLeft, ChevronRight } from 'lucide-react'
 import { EntryModal } from './EntryModal'
 import type { TimeRecord } from '../../../types/pocketbase-types'
-import { isToday, shiftDate } from '../../../utils/dateUtils'
+import { isToday, shiftDate, parsePBDate } from '../../../utils/dateUtils'
 
 export const TimeClock: React.FC = () => {
     const { records, isLoading, fetchRecords, clockIn, clockOut, deleteRecord, addManualEntry, updateRecord } = useTimeClockStore()
@@ -26,7 +26,8 @@ export const TimeClock: React.FC = () => {
     }, [])
 
     const totalToday = calculateTotalDuration(records)
-    const lastRecord = [...records].sort((a, b) => a.timestamp.localeCompare(b.timestamp)).pop()
+    const sortedRecords = [...records].sort((a, b) => parsePBDate(a.timestamp).getTime() - parsePBDate(b.timestamp).getTime())
+    const lastRecord = sortedRecords[sortedRecords.length - 1]
     const isWorking = lastRecord?.type === 'start'
 
     const handleAction = () => {
@@ -141,14 +142,14 @@ export const TimeClock: React.FC = () => {
                             <p style={{ fontSize: 'var(--font-size-sm)' }}>Comece seu dia clicando em "Registrar Entrada".</p>
                         </div>
                     ) : (
-                        [...records].reverse().map(record => (
+                        [...sortedRecords].reverse().map(record => (
                             <div key={record.id} className={styles.recordItem}>
                                 <div className={styles.recordInfo}>
                                     <span className={`${styles.recordType} ${record.type === 'start' ? styles.typeStart : styles.typeFinish}`}>
                                         {record.type === 'start' ? 'Entrada' : 'Saída'}
                                     </span>
                                     <span className={styles.recordTime}>
-                                        {new Date(record.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                                        {parsePBDate(record.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                     {record.is_manual_entry && (
                                         <span style={{

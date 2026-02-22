@@ -1,4 +1,5 @@
 import type { TimeRecord } from '../../../types/pocketbase-types'
+import { parsePBDate, isToday } from '../../../utils/dateUtils'
 
 export interface WorkBlock {
     start: TimeRecord
@@ -8,18 +9,10 @@ export interface WorkBlock {
 
 /**
  * Calculates work blocks from a list of time records.
- * Records should be for a single day usually, but works for any list.
- * 
- * Logic:
- * - Records are sorted chronologically.
- * - A 'start' begins a block.
- * - The NEXT 'finish' closes that block.
- * - If another 'start' appears before a 'finish', the previous 'start' is treated as an "active/open" block (but usually we only expect one open block at the end).
- * - A 'finish' without a preceding 'start' is currently ignored in duration sums.
  */
 export const calculateWorkBlocks = (records: TimeRecord[]): WorkBlock[] => {
     const sorted = [...records].sort((a, b) =>
-        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+        parsePBDate(a.timestamp).getTime() - parsePBDate(b.timestamp).getTime()
     )
 
     const blocks: WorkBlock[] = []
@@ -28,35 +21,36 @@ export const calculateWorkBlocks = (records: TimeRecord[]): WorkBlock[] => {
     for (const record of sorted) {
         if (record.type === 'start') {
             if (activeStart) {
-                // We have a start followed by another start.
-                // The first one is a block that never finished (active).
-                blocks.push({
-                    start: activeStart,
-                    duration: Date.now() - new Date(activeStart.timestamp).getTime()
-                })
+                // Should not happen with clean data, but handle it
+                const startTs = parsePBDate(activeStart.timestamp)
+                let duration = 0
+                if (isToday(startTs)) {
+                    duration = Math.max(0, Date.now() - startTs.getTime())
+                }
+                blocks.push({ start: activeStart, duration })
             }
             activeStart = record
         } else if (record.type === 'finish') {
             if (activeStart) {
-                const startTs = new Date(activeStart.timestamp).getTime()
-                const finishTs = new Date(record.timestamp).getTime()
+                const startTs = parsePBDate(activeStart.timestamp).getTime()
+                const finishTs = parsePBDate(record.timestamp).getTime()
                 blocks.push({
                     start: activeStart,
                     finish: record,
                     duration: Math.max(0, finishTs - startTs)
                 })
                 activeStart = null
-            } else {
-                // Finish without start - ignore for duration
             }
         }
     }
 
     if (activeStart) {
-        blocks.push({
-            start: activeStart,
-            duration: Date.now() - new Date(activeStart.timestamp).getTime()
-        })
+        const startTs = parsePBDate(activeStart.timestamp)
+        let duration = 0
+        if (isToday(startTs)) {
+            duration = Math.max(0, Date.now() - startTs.getTime())
+        }
+        blocks.push({ start: activeStart, duration })
     }
 
     return blocks
@@ -85,4 +79,18 @@ export const formatDuration = (ms: number): string => {
         minutes.toString().padStart(2, '0'),
         seconds.toString().padStart(2, '0')
     ].join(':')
+}
+
+/**
+ * Formats balance milliseconds into +HH:mm or -HH:mm
+ */
+export const formatBalance = (ms: number): string => {
+    const isNegative = ms < 1000 && ms < 0; // ms < 1000 because -0.001 is basically 0
+    const absoluteMs = Math.abs(ms)
+    const totalSeconds = Math.floor(absoluteMs / 1000)
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+
+    const sign = isNegative ? '-' : '+'
+    return `${sign}${hours.toString().padStart(1, '0')}:${minutes.toString().padStart(2, '0')}h`
 }

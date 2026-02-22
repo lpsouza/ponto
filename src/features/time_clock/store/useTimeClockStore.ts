@@ -2,6 +2,7 @@ import type { TimeRecord } from '../../../types/pocketbase-types'
 import { create } from 'zustand'
 import { pb } from '../../../lib/pocketbase'
 import { useStore } from '../../../store/useStore'
+import { formatForPB } from '../../../utils/dateUtils'
 
 interface TimeClockState {
     records: TimeRecord[]
@@ -37,7 +38,7 @@ export const useTimeClockStore = create<TimeClockState>((set) => ({
             endOfDay.setHours(23, 59, 59, 999)
 
             const records = await pb.collection('time_records').getFullList<TimeRecord>({
-                filter: `company = "${activeCompanyId}" && user = "${user.id}" && timestamp >= "${startOfDay.toISOString()}" && timestamp <= "${endOfDay.toISOString()}"`,
+                filter: `company = "${activeCompanyId}" && user = "${user.id}" && timestamp >= "${formatForPB(startOfDay)}" && timestamp <= "${formatForPB(endOfDay)}"`,
                 sort: 'timestamp'
             })
 

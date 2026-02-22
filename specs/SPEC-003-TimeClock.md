@@ -1,7 +1,7 @@
 ---
 id: SPEC-003
 feature: Time Clock & Entry Management
-status: Done
+status: Doing
 priority: Critical
 ---
 
@@ -28,12 +28,13 @@ As a Trust Position Professional, I want to freely register when I enter and lea
 - [x] Multiple blocks per day are **summed** for the daily total.
 - [x] A `start` without a matching `finish` is treated as an **active block**.
 - [x] **Schema Support**: The database supports `start`, `pause`, `resume`, `finish` to accommodate future features or legacy data, though the current UI focuses on start/finish flows.
+- [x] **TimeRecords Collection**: Users can CRUD records where `user` matches their ID.
 - [x] **No blocking**: Users can freely add entries and exits in any order, edit past records, and delete them. The system does not enforce sequential rules.
 
 ### 3.3 Context & Location
 
-- [x] Optional: Capture location for personal context (e.g., "Worked from Home" vs "Office").
 - [x] **No blocking**: Never block an action based on location.
+- [x] **Location Capture**: Store location metadata (Home/Office) for records.
 
 ### 3.4 History & Editing
 
@@ -45,20 +46,21 @@ As a Trust Position Professional, I want to freely register when I enter and lea
 
 ### 3.5 Offline Persistence & Sync
 
-- [ ] **Strategy**: Optimistic UI. Save locally, sync when possible.
-- [ ] **Conflict Resolution**: Last edit wins (User trusted).
+- [ ] **Strategy**: Optimistic UI. Save locally, sync when possible (Pending).
+- [ ] **Conflict Resolution**: Last edit wins (User trusted) (Pending).
 
 ### 3.6 Data Model
 
 **Collection: time_records**
 
-- `id`: string
-- `user`: relation -> users
-- `company`: relation -> companies
-- `timestamp`: date
-- `type`: text (`'start'`, `'pause'`, `'resume'`, `'finish'`)
-- `is_manual_entry`: boolean
-- `notes`: text (optional user notes)
+- [x] `id`: string (PK)
+- [x] `user`: relation -> users
+- [x] `company`: relation -> companies
+- [x] `timestamp`: date
+- [x] `type`: text (`'start'`, `'pause'`, `'resume'`, `'finish'`)
+- [x] `is_manual_entry`: boolean
+- [x] `notes`: text (optional user notes)
+- [x] `location`: text (optional)
 
 ## Testing
 

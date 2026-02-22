@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import styles from './EntryModal.module.css'
 import { X } from 'lucide-react'
 import type { TimeRecord } from '../../../types/pocketbase-types'
-import { formatDateForInput, formatTimeForInput, parseDateTime } from '../../../utils/dateUtils'
+import { formatDateForInput, formatTimeForInput, parseDateTime, parsePBDate } from '../../../utils/dateUtils'
 
 interface EntryModalProps {
     isOpen: boolean
@@ -22,7 +22,7 @@ export const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, onSave,
     useEffect(() => {
         if (isOpen) {
             if (initialData) {
-                const d = new Date(initialData.timestamp)
+                const d = parsePBDate(initialData.timestamp)
                 setType(initialData.type as 'start' | 'finish')
                 setDate(formatDateForInput(d))
                 setTime(formatTimeForInput(d))
