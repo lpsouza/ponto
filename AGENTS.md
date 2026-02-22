@@ -32,11 +32,12 @@ It helps users track their "real" hours to avoid **overworking (Burnout)** or **
    - **Privacy**: Data is primarily for the user's insight, not for HR policing.
 
 4. **Testing Strategy**:
+   - **Crucial Priority**: Unit tests are the foundation of reliability for this project.
    - **Unit/Integration**: Use **Vitest** + **React Testing Library**.
    - **E2E**: Use **Playwright** for critical flows (Login, Clock In/Out, Offline Sync).
    - **Requirement**: Every new feature spec must include a "Testing" section.
-   - **Coverage**: Business logic (e.g., overtime calc) requires 100% unit test coverage.
-   - **MANDATORY**: Unit tests must ALWAYS pass 100% after any adjustment.
+   - **Coverage**: Maintain a minimum of **95% global coverage** and **100% coverage** for business logic (e.g., time calculations).
+   - **MANDATORY**: Unit tests must ALWAYS be **100% green** (passing) after any adjustment. No regressions are allowed.
 
 5. **UI/UX**:
    - Design must be "Mobile First".
@@ -44,7 +45,10 @@ It helps users track their "real" hours to avoid **overworking (Burnout)** or **
 
 6. **Git & Version Control**:
    - **Commit Messages**: Must be single-line in English.
-   - **Spec Reference**: If the commit relates to a spec, MUST include the Spec ID (e.g., `[SPEC-001] Initial setup`).
+   - **Context Requirement**: Every commit message **MUST**:
+     - Reference a SPEC ID if related to a feature (e.g., `[SPEC-001] Add Docker configuration`).
+     - Use a natural, descriptive sentence for general adjustments or fixes (e.g., `Update documentation for agent guidelines` or `Correct timezone handling in dashboard`).
+   - **PROHIBITED**: Do NOT use "Conventional Commits" tags/format (feat:, fix:, [Docs], [Fix], etc.). Always write in natural language.
    - **NO AUTOMATIC COMMITS**: Do NOT run `git commit` commands automatically under any circumstance. ALWAYS wait for the user to explicitly request a commit before doing so.
 
 ## Development Methodology: Spec Driven Development (SDD)

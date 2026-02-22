@@ -40,6 +40,9 @@ export const Dashboard = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
                     <LayoutDashboard size={24} color="var(--color-primary)" />
                     <h2 className={styles.sectionTitle} style={{ marginBottom: 0 }}>Dashboard</h2>
+                    {todayWorkBlocks.some(b => !b.finish) && (
+                        <span className={styles.ongoingBadge}>Em andamento</span>
+                    )}
                 </div>
                 {stats && (
                     <button
@@ -58,6 +61,7 @@ export const Dashboard = () => {
                 <DailyBalanceMetric
                     balance={todayBalance}
                     targetHours={stats?.targetDailyMs ? stats.targetDailyMs / 3600000 : 8}
+                    isOngoing={todayWorkBlocks.some(b => !b.finish)}
                 />
                 <DailyTimeline blocks={todayWorkBlocks} />
             </div>

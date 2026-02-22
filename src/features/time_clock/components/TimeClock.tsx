@@ -142,8 +142,8 @@ export const TimeClock: React.FC = () => {
                             <p style={{ fontSize: 'var(--font-size-sm)' }}>Comece seu dia clicando em "Registrar Entrada".</p>
                         </div>
                     ) : (
-                        [...sortedRecords].reverse().map(record => (
-                            <div key={record.id} className={styles.recordItem}>
+                        [...sortedRecords].reverse().map((record, idx) => (
+                            <div key={record.id} className={`${styles.recordItem} ${idx === 0 && isWorking ? styles.activeRecord : ''}`}>
                                 <div className={styles.recordInfo}>
                                     <span className={`${styles.recordType} ${record.type === 'start' ? styles.typeStart : styles.typeFinish}`}>
                                         {record.type === 'start' ? 'Entrada' : 'Saída'}

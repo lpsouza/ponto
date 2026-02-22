@@ -27,12 +27,13 @@ export const DailyTimeline = ({ blocks }: DailyTimelineProps) => {
                     const startPos = getPosition(block.start.timestamp)
                     const endTs = block.finish?.timestamp || new Date().toISOString()
                     const endPos = getPosition(endTs)
-                    const width = Math.max(0.5, endPos - startPos) // Min width for visibility
+                    const width = Math.max(0.5, endPos - startPos)
+                    const isOpen = !block.finish
 
                     return (
                         <div
                             key={index}
-                            className={styles.workSegment}
+                            className={`${styles.workSegment} ${isOpen ? styles.openSegment : ''}`}
                             style={{
                                 left: `${startPos}%`,
                                 width: `${width}%`

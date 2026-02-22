@@ -29,6 +29,45 @@
     transition: var(--transition-normal);
 }
 
+.openSegment {
+    background: linear-gradient(45deg,
+            var(--color-primary) 25%,
+            var(--color-primary-light) 25%,
+            var(--color-primary-light) 50%,
+            var(--color-primary) 50%,
+            var(--color-primary) 75%,
+            var(--color-primary-light) 75%,
+            var(--color-primary-light) 100%);
+    background-size: 20px 20px;
+    box-shadow: 0 0 12px var(--color-primary-alpha20);
+    animation: pulse 2s infinite ease-in-out, move-stripes 1s linear infinite;
+}
+
+@keyframes move-stripes {
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 20px 0;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.8;
+    }
+
+    50% {
+        opacity: 1;
+        box-shadow: 0 0 16px var(--color-primary-alpha40);
+    }
+
+    100% {
+        opacity: 0.8;
+    }
+}
+
 .timeMarkers {
     display: flex;
     justify-content: space-between;

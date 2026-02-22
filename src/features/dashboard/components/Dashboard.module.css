@@ -23,6 +23,31 @@
     margin-bottom: var(--spacing-md);
 }
 
+.ongoingBadge {
+    background: var(--color-primary-alpha20);
+    color: var(--color-primary);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    border: 1px solid var(--color-primary-alpha40);
+    animation: badge-pulse 2s infinite ease-in-out;
+}
+
+@keyframes badge-pulse {
+    0% {
+        opacity: 0.8;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.8;
+    }
+}
+
 .statsGrid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

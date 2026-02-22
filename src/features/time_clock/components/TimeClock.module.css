@@ -140,6 +140,38 @@
     background: var(--color-surface-lvl2);
 }
 
+.activeRecord {
+    border-color: var(--color-primary);
+    background: var(--color-surface-lvl2);
+    box-shadow: 0 0 15px var(--color-primary-alpha20);
+    position: relative;
+}
+
+.activeRecord::after {
+    content: 'Contando...';
+    position: absolute;
+    right: 80px;
+    font-size: 0.7rem;
+    color: var(--color-primary);
+    font-weight: bold;
+    text-transform: uppercase;
+    animation: active-pulse 1.5s infinite;
+}
+
+@keyframes active-pulse {
+    0% {
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.4;
+    }
+}
+
 .recordInfo {
     display: flex;
     align-items: center;

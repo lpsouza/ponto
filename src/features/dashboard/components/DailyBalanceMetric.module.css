@@ -9,9 +9,11 @@
     transition: var(--transition-normal);
 }
 
-.metricCard:hover {
+.metricCard:hover,
+.highlight {
     border-color: var(--color-primary);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--color-primary-alpha20);
 }
 
 .label {

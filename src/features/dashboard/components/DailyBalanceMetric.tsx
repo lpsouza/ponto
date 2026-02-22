@@ -4,14 +4,15 @@ import styles from './DailyBalanceMetric.module.css'
 interface DailyBalanceMetricProps {
     balance: number
     targetHours: number
+    isOngoing?: boolean
 }
 
-export const DailyBalanceMetric = ({ balance, targetHours }: DailyBalanceMetricProps) => {
+export const DailyBalanceMetric = ({ balance, targetHours, isOngoing }: DailyBalanceMetricProps) => {
     const isPositive = balance >= 0
     const formattedBalance = formatBalance(balance)
 
     return (
-        <div className={styles.metricCard}>
+        <div className={`${styles.metricCard} ${isOngoing ? styles.highlight : ''}`}>
             <span className={styles.label}>Saldo Hoje</span>
             <div className={`${styles.value} ${isPositive ? styles.positive : styles.negative}`}>
                 {formattedBalance}
