@@ -1,32 +1,29 @@
 .metricCard {
-    background: var(--color-surface-lvl2);
-    padding: var(--spacing-lg);
+    background: var(--color-surface-lvl1);
     border-radius: var(--radius-lg);
     border: 1px solid var(--color-surface-lvl3);
+    padding: var(--spacing-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.mainBalance {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
-    transition: var(--transition-normal);
-}
-
-.metricCard:hover,
-.highlight {
-    border-color: var(--color-primary);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--color-primary-alpha20);
 }
 
 .label {
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-weight: var(--font-weight-medium);
 }
 
 .value {
-    font-size: var(--font-size-3xl);
+    font-size: 2.5rem;
     font-weight: var(--font-weight-bold);
-    color: var(--color-text-primary);
+    font-variant-numeric: tabular-nums;
 }
 
 .positive {
@@ -37,7 +34,29 @@
     color: var(--color-error);
 }
 
-.subtext {
-    font-size: var(--font-size-xs);
+.details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-surface-lvl3);
+}
+
+.detailItem {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.detailLabel {
+    font-size: 0.7rem;
     color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detailValue {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
 }

@@ -73,3 +73,71 @@ export const parsePBDate = (dateStr: string): Date => {
     }
     return new Date(normalized)
 }
+/**
+ * Checks if a given date is a weekend (Saturday or Sunday)
+ */
+export const isWeekend = (date: Date): boolean => {
+    const day = date.getDay()
+    return day === 0 || day === 6
+}
+
+/**
+ * Parses HH:mm and returns minutes from start of day
+ */
+export const getMinutesFromTime = (timeStr: string): number => {
+    const [hours, minutes] = timeStr.split(':').map(Number)
+    return hours * 60 + minutes
+}
+
+/**
+ * Calculates milliseconds of overlap between [start, end] and a daily time range [rangeStart, rangeEnd]
+ */
+export const calculateTimeOverlap = (
+    start: Date,
+    end: Date,
+    rangeStartStr: string,
+    rangeEndStr: string
+): number => {
+    const s = start.getTime()
+    const e = end.getTime()
+
+    // Normalize range times to the start of the 'start' date
+    const baseDate = new Date(start)
+    baseDate.setHours(0, 0, 0, 0)
+    const base = baseDate.getTime()
+
+    const rStartMs = getMinutesFromTime(rangeStartStr) * 60 * 1000
+    const rEndMs = getMinutesFromTime(rangeEndStr) * 60 * 1000
+
+    let overlap = 0
+
+    // Range might cross midnight (e.g., 22:00 to 05:00)
+    if (rStartMs > rEndMs) {
+        // Break into two ranges: [rStart, Midnight] and [Midnight, rEnd]
+        const range1Start = base + rStartMs
+        const range1End = base + 24 * 60 * 60 * 1000
+        const range2Start = base + 24 * 60 * 60 * 1000
+        const range2End = base + 24 * 60 * 60 * 1000 + rEndMs
+
+        overlap += Math.max(0, Math.min(e, range1End) - Math.max(s, range1Start))
+        overlap += Math.max(0, Math.min(e, range2End) - Math.max(s, range2Start))
+
+        // Also check previous day if start is very early
+        const prevBase = base - 24 * 60 * 60 * 1000
+        const prevRange1Start = prevBase + rStartMs
+        const prevRange1End = prevBase + 24 * 60 * 60 * 1000
+        overlap += Math.max(0, Math.min(e, prevRange1End) - Math.max(s, prevRange1Start))
+    } else {
+        const rangeStart = base + rStartMs
+        const rangeEnd = base + rEndMs
+        overlap += Math.max(0, Math.min(e, rangeEnd) - Math.max(s, rangeStart))
+
+        // Also check next day if block crosses midnight
+        const nextBase = base + 24 * 60 * 60 * 1000
+        const nextRangeStart = nextBase + rStartMs
+        const nextRangeEnd = nextBase + rEndMs
+        overlap += Math.max(0, Math.min(e, nextRangeEnd) - Math.max(s, nextRangeStart))
+    }
+
+    return overlap
+}

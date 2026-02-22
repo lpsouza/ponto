@@ -112,6 +112,42 @@
     color: var(--color-text-muted);
 }
 
+.itemLabel {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex: 1;
+}
+
+.itemActions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.settingsButton {
+    background: transparent;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    padding: 2px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+}
+
+.item:hover .settingsButton {
+    opacity: 1;
+}
+
+.settingsButton:hover {
+    color: var(--color-primary);
+    background: var(--color-surface-lvl3);
+}
+
 @keyframes slideDown {
     from {
         opacity: 0;

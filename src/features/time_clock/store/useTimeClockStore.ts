@@ -11,9 +11,10 @@ interface TimeClockState {
     fetchRecords: (date: Date) => Promise<void>
     clockIn: (notes?: string) => Promise<void>
     clockOut: (notes?: string) => Promise<void>
-    addManualEntry: (data: { type: 'start' | 'pause' | 'resume' | 'finish', timestamp: string, notes?: string, location?: string }) => Promise<void>
+    addManualEntry: (data: { type: 'start' | 'pause' | 'resume' | 'finish' | 'leave' | 'holiday' | 'compensation', timestamp: string, notes?: string, location?: string }) => Promise<void>
     updateRecord: (id: string, data: Partial<TimeRecord>) => Promise<void>
     deleteRecord: (id: string) => Promise<void>
+    markDayAs: (date: Date, type: 'holiday' | 'leave' | 'compensation' | 'work') => Promise<void>
 }
 
 export const useTimeClockStore = create<TimeClockState>((set) => ({
@@ -136,6 +137,56 @@ export const useTimeClockStore = create<TimeClockState>((set) => ({
                 records: state.records.filter(r => r.id !== id),
                 isLoading: false
             }))
+        } catch (err: any) {
+            set({ error: err.message, isLoading: false })
+        }
+    },
+
+    markDayAs: async (date, type) => {
+        const { activeCompanyId, user } = useStore.getState()
+        const { records } = useTimeClockStore.getState()
+        if (!activeCompanyId || !user) return
+
+        set({ isLoading: true, error: null })
+        try {
+            // 1. Find existing special records for this day
+            const specialTypes = ['holiday', 'leave', 'compensation']
+            const existingSpecial = records.find((r: TimeRecord) => specialTypes.includes(r.type))
+
+            if (type === 'work') {
+                // Remove special record if it exists
+                if (existingSpecial) {
+                    await pb.collection('time_records').delete(existingSpecial.id)
+                }
+            } else {
+                if (existingSpecial) {
+                    // Update existing
+                    await pb.collection('time_records').update(existingSpecial.id, { type })
+                } else {
+                    // Create new
+                    await pb.collection('time_records').create({
+                        user: user.id,
+                        company: activeCompanyId,
+                        type,
+                        timestamp: date.toISOString(),
+                        is_manual_entry: true
+                    })
+                }
+            }
+
+            // 2. Refetch records for the day to ensure state consistency
+            // We use the same fetchRecords logic but internally
+            const startOfDay = new Date(date)
+            startOfDay.setHours(0, 0, 0, 0)
+            const endOfDay = new Date(date)
+            endOfDay.setHours(23, 59, 59, 999)
+
+            const updatedRecords = await pb.collection('time_records').getFullList<TimeRecord>({
+                filter: `company = "${activeCompanyId}" && user = "${user.id}" && timestamp >= "${formatForPB(startOfDay)}" && timestamp <= "${formatForPB(endOfDay)}"`,
+                sort: 'timestamp'
+            })
+
+            set({ records: updatedRecords, isLoading: false })
         } catch (err: any) {
             set({ error: err.message, isLoading: false })
         }

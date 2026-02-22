@@ -8,9 +8,18 @@ import type { TimeRecord } from '../../../types/pocketbase-types'
 import { isToday, shiftDate, parsePBDate } from '../../../utils/dateUtils'
 
 export const TimeClock: React.FC = () => {
-    const { records, isLoading, fetchRecords, clockIn, clockOut, deleteRecord, addManualEntry, updateRecord } = useTimeClockStore()
+    const {
+        records,
+        isLoading,
+        fetchRecords,
+        clockIn,
+        clockOut,
+        deleteRecord,
+        addManualEntry,
+        updateRecord,
+        markDayAs
+    } = useTimeClockStore()
     const [currentTime, setCurrentTime] = useState(new Date())
-    // In a full implementation, we'd have a date picker that sets this
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingRecord, setEditingRecord] = useState<TimeRecord | undefined>()
@@ -25,9 +34,13 @@ export const TimeClock: React.FC = () => {
         return () => clearInterval(timer)
     }, [])
 
+    const workRecords = records.filter(r => ['start', 'finish'].includes(r.type))
+    const specialRecords = records.filter(r => ['holiday', 'leave', 'compensation'].includes(r.type))
+    const currentDayStatus: string = specialRecords[0]?.type || 'work'
+
     const totalToday = calculateTotalDuration(records)
-    const sortedRecords = [...records].sort((a, b) => parsePBDate(a.timestamp).getTime() - parsePBDate(b.timestamp).getTime())
-    const lastRecord = sortedRecords[sortedRecords.length - 1]
+    const sortedWorkRecords = [...workRecords].sort((a, b) => parsePBDate(a.timestamp).getTime() - parsePBDate(b.timestamp).getTime())
+    const lastRecord = sortedWorkRecords[sortedWorkRecords.length - 1]
     const isWorking = lastRecord?.type === 'start'
 
     const handleAction = () => {
@@ -38,7 +51,7 @@ export const TimeClock: React.FC = () => {
         }
     }
 
-    const handleSaveEntry = async (data: { type: 'start' | 'finish', timestamp: string, notes?: string }) => {
+    const handleSaveEntry = async (data: { type: 'start' | 'finish' | 'leave' | 'holiday' | 'compensation', timestamp: string, notes?: string }) => {
         if (editingRecord) {
             await updateRecord(editingRecord.id, data)
         } else {
@@ -100,6 +113,16 @@ export const TimeClock: React.FC = () => {
                 </div>
 
                 <div className={styles.actions}>
+                    {currentDayStatus !== 'work' && (
+                        <div className={`${styles.dayBadge} ${currentDayStatus === 'holiday' ? styles.badgeHoliday :
+                            currentDayStatus === 'leave' ? styles.badgeLeave :
+                                styles.badgeCompensation
+                            }`}>
+                            {currentDayStatus === 'holiday' ? 'Feriado' :
+                                currentDayStatus === 'leave' ? 'Folga Abonada' :
+                                    'Folga Compensada'}
+                        </div>
+                    )}
                     <button
                         className={`${styles.clockButton} ${isWorking ? styles.clockButtonFinish : styles.clockButtonStart}`}
                         onClick={handleAction}
@@ -110,6 +133,33 @@ export const TimeClock: React.FC = () => {
                         ) : (
                             <><Play size={24} fill="currentColor" /> Registrar Entrada</>
                         )}
+                    </button>
+                </div>
+
+                <div className={styles.dayStatusSelector}>
+                    <button
+                        className={`${styles.statusButton} ${currentDayStatus === 'work' ? styles.statusButtonActive : ''}`}
+                        onClick={() => markDayAs(selectedDate, 'work')}
+                    >
+                        Trabalho
+                    </button>
+                    <button
+                        className={`${styles.statusButton} ${styles.statusHoliday} ${currentDayStatus === 'holiday' ? styles.statusButtonActive : ''}`}
+                        onClick={() => markDayAs(selectedDate, 'holiday')}
+                    >
+                        Feriado
+                    </button>
+                    <button
+                        className={`${styles.statusButton} ${styles.statusLeave} ${currentDayStatus === 'leave' ? styles.statusButtonActive : ''}`}
+                        onClick={() => markDayAs(selectedDate, 'leave')}
+                    >
+                        Abono
+                    </button>
+                    <button
+                        className={`${styles.statusButton} ${styles.statusCompensation} ${currentDayStatus === 'compensation' ? styles.statusButtonActive : ''}`}
+                        onClick={() => markDayAs(selectedDate, 'compensation')}
+                    >
+                        Compensar
                     </button>
                 </div>
             </section>
@@ -129,7 +179,7 @@ export const TimeClock: React.FC = () => {
                 </div>
 
                 <div className={styles.timelineList}>
-                    {records.length === 0 ? (
+                    {workRecords.length === 0 ? (
                         <div style={{
                             textAlign: 'center',
                             color: 'var(--color-text-muted)',
@@ -142,7 +192,7 @@ export const TimeClock: React.FC = () => {
                             <p style={{ fontSize: 'var(--font-size-sm)' }}>Comece seu dia clicando em "Registrar Entrada".</p>
                         </div>
                     ) : (
-                        [...sortedRecords].reverse().map((record, idx) => (
+                        [...sortedWorkRecords].reverse().map((record, idx) => (
                             <div key={record.id} className={`${styles.recordItem} ${idx === 0 && isWorking ? styles.activeRecord : ''}`}>
                                 <div className={styles.recordInfo}>
                                     <span className={`${styles.recordType} ${record.type === 'start' ? styles.typeStart : styles.typeFinish}`}>

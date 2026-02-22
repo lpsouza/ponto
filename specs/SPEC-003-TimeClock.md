@@ -1,7 +1,7 @@
 ---
 id: SPEC-003
 feature: Time Clock & Entry Management
-status: Doing
+status: Done
 priority: Critical
 ---
 
@@ -21,6 +21,10 @@ As a Trust Position Professional, I want to freely register when I enter and lea
 - [x] **Manual Entry**: Form to add records with specific types.
 - [x] **Timeline**: Show today's records in **chronological order** (earliest to latest), clearly displaying work blocks and any open (active) block at the end.
 - [x] **Edit Interface**: Editing and manual entry should be presented in a clear, accessible modal with distinct actions (Save, Cancel, Delete).
+- [ ] **Day Status Actions**: Button/Menu on the day's timeline to mark the day as:
+    - **Feriado**: Resets daily target to 0 for the selected company.
+    - **Folga (compensada)**: Indicates usage of banked hours for the day.
+    - **Folga (abonada)**: Indicates justified absence without bank deduction.
 
 ### 3.2 Work Blocks
 
@@ -30,6 +34,7 @@ As a Trust Position Professional, I want to freely register when I enter and lea
 - [x] **Schema Support**: The database supports `start`, `pause`, `resume`, `finish` to accommodate future features or legacy data, though the current UI focuses on start/finish flows.
 - [x] **TimeRecords Collection**: Users can CRUD records where `user` matches their ID.
 - [x] **No blocking**: Users can freely add entries and exits in any order, edit past records, and delete them. The system does not enforce sequential rules.
+- [ ] **Leave Registration**: Explicitly register "Abonos" (Paid Leave) to compensate work days without work blocks (Specifying duration and reason).
 
 ### 3.3 Context & Location
 
@@ -57,10 +62,11 @@ As a Trust Position Professional, I want to freely register when I enter and lea
 - [x] `user`: relation -> users
 - [x] `company`: relation -> companies
 - [x] `timestamp`: date
-- [x] `type`: text (`'start'`, `'pause'`, `'resume'`, `'finish'`)
+- [x] `type`: text (`'start'`, `'pause'`, `'resume'`, `'finish'`, `'leave'`, `'holiday'`, `'compensation'`)
 - [x] `is_manual_entry`: boolean
 - [x] `notes`: text (optional user notes)
 - [x] `location`: text (optional)
+- [ ] `metadata`: json (for extra info like leave duration or location details)
 
 ## Testing
 
@@ -79,3 +85,10 @@ As a Trust Position Professional, I want to freely register when I enter and lea
 
 - **Prevention**: Prevent double clicks (debounce).
 - **Time Source**: Trust Server Time (PocketBase `$autoCreate` or explicit server rules) for the official record, but store Device Time as metadata for audit.
+- **Work Configuration**: Company records store `settings` (JSON). **CLT Defaults** (editable):
+    - `work_days`: `[1, 2, 3, 4, 5]` (Monday-Friday).
+    - `daily_target_ms`: `28800000` (8 hours).
+    - `holidays`: Array of ISO date strings for bank exemption.
+    - `multipliers`:
+        - `night`: `{ start: '22:00', end: '05:00', value: 1.1428 }` (CLT Adicional Noturno).
+        - `weekend`: `2.0` (100% Extra).

@@ -7,9 +7,8 @@ import { BurnoutWarning } from './BurnoutWarning'
 import { MonthlyHeatmap } from './MonthlyHeatmap'
 import { calculateWorkBlocks, formatBalance } from '../../time_clock/utils/calculations'
 import { useStore } from '../../../store/useStore'
-import { Download, LayoutDashboard } from 'lucide-react'
-import { exportToCSV } from '../utils/csv-export'
-import { getLocalDateString } from '../../../utils/dateUtils'
+import { LayoutDashboard } from 'lucide-react'
+import { isToday, parsePBDate } from '../../../utils/dateUtils'
 import styles from './Dashboard.module.css'
 
 export const Dashboard = () => {
@@ -18,10 +17,10 @@ export const Dashboard = () => {
     const { currentCompany } = useStore()
 
     useEffect(() => {
+        // Default to current month
         const now = new Date()
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
-
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
         fetchPeriodStats(startOfMonth, endOfMonth)
     }, [fetchPeriodStats, currentCompany?.id])
 
@@ -29,39 +28,36 @@ export const Dashboard = () => {
         return <div>Carregando dashboard...</div>
     }
 
-    const todayStr = getLocalDateString(new Date())
-    const todaySummary = stats?.dailySummaries.find(s => s.date === todayStr)
-    const todayBalance = todaySummary?.balance || 0
+    const todaySummary = stats?.dailySummaries.find(s => isToday(parsePBDate(s.date)))
+    const targetHours = (stats?.targetDailyMs || 8 * 60 * 60 * 1000) / (60 * 60 * 1000)
     const todayWorkBlocks = calculateWorkBlocks(todayRecords)
+    const isWorking = todayWorkBlocks.some(b => !b.finish)
 
     return (
-        <div className={styles.dashboard}>
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-                    <LayoutDashboard size={24} color="var(--color-primary)" />
-                    <h2 className={styles.sectionTitle} style={{ marginBottom: 0 }}>Dashboard</h2>
-                    {todayWorkBlocks.some(b => !b.finish) && (
-                        <span className={styles.ongoingBadge}>Em andamento</span>
-                    )}
+        <div className={styles.container}>
+            <header className={styles.header}>
+                <div className={styles.titleGroup}>
+                    <LayoutDashboard className={styles.icon} />
+                    <h2 className={styles.title}>Dashboard de Saldo</h2>
                 </div>
                 {stats && (
-                    <button
-                        className={styles.exportBtn}
-                        onClick={() => exportToCSV(stats.dailySummaries, currentCompany?.name || 'export')}
-                    >
-                        <Download size={16} />
-                        Exportar CSV
-                    </button>
+                    <div className={styles.globalBalanceHeader}>
+                        <span className={styles.globalLabel}>Saldo Acumulado</span>
+                        <span className={`${styles.globalValue} ${stats.totalBalance >= 0 ? styles.positive : styles.negative}`}>
+                            {formatBalance(stats.totalBalance)}
+                        </span>
+                    </div>
                 )}
             </header>
 
             <BurnoutWarning show={todaySummary?.isBurnoutRisk || false} />
 
-            <div className={styles.topRow}>
+            <div className={styles.topGrid}>
                 <DailyBalanceMetric
-                    balance={todayBalance}
-                    targetHours={stats?.targetDailyMs ? stats.targetDailyMs / 3600000 : 8}
-                    isOngoing={todayWorkBlocks.some(b => !b.finish)}
+                    balance={todaySummary?.balance || 0}
+                    targetHours={targetHours}
+                    globalBalance={stats?.totalBalance}
+                    isOngoing={isWorking}
                 />
                 <DailyTimeline blocks={todayWorkBlocks} />
             </div>

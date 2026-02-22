@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react'
 import { companyService } from '../services/companyService'
 import { useStore } from '../../../store/useStore'
 import { useAuth } from '../../auth/AuthProvider'
-import type { Company } from '../../../types/pocketbase-types'
-import { Building2, Plus, Check } from 'lucide-react'
+import type { Company, CompanySettings } from '../../../types/pocketbase-types'
+import { Building2, Plus, Check, Settings } from 'lucide-react'
 import styles from './CompanySelector.module.css'
+import { CompanySettingsModal } from './CompanySettingsModal'
 
 export const CompanySelector = () => {
     const { user } = useAuth()
@@ -12,6 +13,8 @@ export const CompanySelector = () => {
     const [companies, setCompanies] = useState<Company[]>([])
     const [isOpen, setIsOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+    const [editingCompany, setEditingCompany] = useState<Company | null>(null)
 
     useEffect(() => {
         if (user) {
@@ -24,12 +27,10 @@ export const CompanySelector = () => {
             const list = await companyService.getCompanies()
             setCompanies(list)
 
-            // If there's an active ID but companies are loaded, ensure the object is updated
             if (activeCompanyId) {
                 const found = list.find(c => c.id === activeCompanyId)
                 if (found) setCurrentCompany(found)
             } else if (list.length > 0) {
-                // Default to first company if none active
                 setActiveCompanyId(list[0].id)
                 setCurrentCompany(list[0])
             }
@@ -59,7 +60,28 @@ export const CompanySelector = () => {
         }
     }
 
-    if (isLoading) return <div className={styles.loading}>Cargando contextos...</div>
+    const handleOpenSettings = (e: React.MouseEvent, company: Company) => {
+        e.stopPropagation()
+        setEditingCompany(company)
+        setIsSettingsOpen(true)
+        setIsOpen(false)
+    }
+
+    const handleSaveSettings = async (settings: CompanySettings) => {
+        if (!editingCompany) return
+        try {
+            const updated = await companyService.updateSettings(editingCompany.id, settings)
+            setCompanies(companies.map(c => c.id === updated.id ? updated : c))
+            if (activeCompanyId === updated.id) {
+                setCurrentCompany(updated)
+            }
+        } catch (error) {
+            console.error('Failed to save settings:', error)
+            throw error
+        }
+    }
+
+    if (isLoading) return <div className={styles.loading}>Carregando contextos...</div>
 
     return (
         <div className={styles.container}>
@@ -81,8 +103,19 @@ export const CompanySelector = () => {
                                 className={`${styles.item} ${company.id === activeCompanyId ? styles.active : ''}`}
                                 onClick={() => handleSwitch(company)}
                             >
-                                <span>{company.name}</span>
-                                {company.id === activeCompanyId && <Check size={14} className={styles.checkIcon} />}
+                                <div className={styles.itemLabel}>
+                                    <span>{company.name}</span>
+                                    {company.id === activeCompanyId && <Check size={14} className={styles.checkIcon} />}
+                                </div>
+                                <div className={styles.itemActions}>
+                                    <button
+                                        className={styles.settingsButton}
+                                        onClick={(e) => handleOpenSettings(e, company)}
+                                        title="Configurações"
+                                    >
+                                        <Settings size={14} />
+                                    </button>
+                                </div>
                             </li>
                         ))}
                         <li className={styles.divider} />
@@ -92,6 +125,15 @@ export const CompanySelector = () => {
                         </li>
                     </ul>
                 </>
+            )}
+
+            {editingCompany && (
+                <CompanySettingsModal
+                    isOpen={isSettingsOpen}
+                    onClose={() => setIsSettingsOpen(false)}
+                    company={editingCompany}
+                    onSave={handleSaveSettings}
+                />
             )}
         </div>
     )

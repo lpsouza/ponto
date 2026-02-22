@@ -23,8 +23,8 @@ Ponto Livre is a modern **Time Balance Tracker** designed for professionals in t
 |---------|---------|--------|
 | SPEC-001 | Project Foundation & Infrastructure | Done |
 | SPEC-002 | Authentication & User Profile | Done |
-| SPEC-003 | Time Clock & Entry Management | Doing |
-| SPEC-004 | Dashboard & Metrics | Done |
+| [SPEC-003](specs/SPEC-003-TimeClock.md) | Time Clock & Entry Management | Done |
+| [SPEC-004](specs/SPEC-004-Dashboard.md) | Dashboard & Balance History | Done |
 
 ## Development
 
