@@ -1,0 +1,37 @@
+.timelineContainer {
+    background: var(--color-surface-lvl2);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-surface-lvl3);
+}
+
+.title {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-md);
+    display: block;
+}
+
+.bar {
+    height: 24px;
+    background: var(--color-surface-lvl3);
+    border-radius: var(--radius-full);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: var(--spacing-sm);
+}
+
+.workSegment {
+    height: 100%;
+    background: var(--color-primary);
+    position: absolute;
+    top: 0;
+    transition: var(--transition-normal);
+}
+
+.timeMarkers {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
