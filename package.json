@@ -17,10 +17,10 @@
     "pb:down": "docker compose -f docker-compose.dev.yml down --remove-orphans",
     "pb:restart": "docker compose -f docker-compose.dev.yml restart pb",
     "pb:logs": "docker compose -f docker-compose.dev.yml logs -f",
-    "pb:admin": "docker exec ponto-pb-dev ./pocketbase superuser upsert admin@ponto.dev Admin123456",
+    "pb:admin": "echo 'Admin creation is now handled by migrations.'",
     "pb:clean": "docker compose -f docker-compose.dev.yml down -v --remove-orphans",
-    "pb:setup": "npm run pb:down && npm run pb:up && sleep 5 && npm run pb:admin",
-    "pb:reset": "npm run pb:clean && npm run pb:up && sleep 5 && npm run pb:admin"
+    "pb:setup": "npm run pb:down && npm run pb:up",
+    "pb:reset": "npm run pb:clean && npm run pb:up"
   },
   "dependencies": {
     "lucide-react": "^0.575.0",

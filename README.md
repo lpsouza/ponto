@@ -35,10 +35,21 @@ Ponto Livre is a modern **Time Balance Tracker** designed for professionals in t
 
 ### Configuration
 
-To enable Google OAuth2 login:
 1. Copy `.env.example` to `.env`.
-2. Fill in `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`.
+2. Fill in the required environment variables:
+   ```
+   # PocketBase Google Auth
+   GOOGLE_CLIENT_ID=your_client_id_here
+   GOOGLE_CLIENT_SECRET=your_client_secret_here
+
+   # PocketBase Initial Admin Account
+   ADMIN_EMAIL=admin@ponto.dev
+   ADMIN_PASSWORD=your_secure_password_here
+   ```
 3. Restart PocketBase (`npm run pb:restart`).
+
+> [!NOTE]
+> The initial administrative user is created automatically via migrations upon the first startup (or after a `npm run pb:reset`) if the environment variables are provided in the `.env` file.
 
 ### Getting Started
 
