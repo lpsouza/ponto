@@ -211,4 +211,47 @@ describe('useTimeClockStore', () => {
 
         expect(mockCollection.create).not.toHaveBeenCalled()
     })
+
+    describe('markDayAs', () => {
+        const testDate = new Date('2026-02-21T10:00:00Z')
+
+        it('should create a new special record if none exists', async () => {
+            mockCollection.getFullList.mockResolvedValue([])
+            mockCollection.create.mockResolvedValue({ id: 'new', type: 'holiday' })
+
+            await useTimeClockStore.getState().markDayAs(testDate, 'holiday')
+
+            expect(mockCollection.create).toHaveBeenCalledWith(expect.objectContaining({
+                type: 'holiday',
+                is_manual_entry: true
+            }))
+        })
+
+        it('should update existing special record if one exists', async () => {
+            const existing = { id: 'ext1', type: 'holiday' }
+            useTimeClockStore.setState({ records: [existing as any] })
+            mockCollection.getFullList.mockResolvedValue([{ ...existing, type: 'leave' }])
+
+            await useTimeClockStore.getState().markDayAs(testDate, 'leave')
+
+            expect(mockCollection.update).toHaveBeenCalledWith('ext1', { type: 'leave' })
+        })
+
+        it('should remove special record if type is work', async () => {
+            const existing = { id: 'ext1', type: 'holiday' }
+            useTimeClockStore.setState({ records: [existing as any] })
+            mockCollection.getFullList.mockResolvedValue([])
+
+            await useTimeClockStore.getState().markDayAs(testDate, 'work')
+
+            expect(mockCollection.delete).toHaveBeenCalledWith('ext1')
+        })
+
+        it('should handle errors in markDayAs', async () => {
+            mockCollection.create.mockRejectedValue(new Error('Mark error'))
+            await useTimeClockStore.getState().markDayAs(testDate, 'holiday')
+            expect(useTimeClockStore.getState().error).toBe('Mark error')
+        })
+    })
 })
+

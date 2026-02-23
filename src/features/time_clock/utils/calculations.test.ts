@@ -146,4 +146,30 @@ describe('Time Clock Calculations', () => {
         expect(blocks).toHaveLength(1)
         expect(blocks[0].duration).toBe(4 * 60 * 60 * 1000) // 08:00 to 12:00
     })
+
+    it('should calculate duration with leave (abonada) correctly', () => {
+        const records: TimeRecord[] = [
+            { ...mockRecord('1', 'start', '2026-02-21T08:00:00Z'), type: 'leave' }
+        ]
+        const settings = {
+            daily_target_ms: 8 * 60 * 60 * 1000,
+            multipliers: {}
+        } as any
+
+
+        const total = calculateTotalDuration(records, settings)
+        // target (8h) + work (0) = 8h
+        expect(total).toBe(8 * 60 * 60 * 1000)
+
+        // With work
+        const recordsWithWork: TimeRecord[] = [
+            mockRecord('1', 'start', '2026-02-21T08:00:00Z'),
+            mockRecord('2', 'finish', '2026-02-21T10:00:00Z'),
+            { ...mockRecord('3', 'start', '2026-02-21T11:00:00Z'), type: 'leave' }
+        ]
+        const totalWithWork = calculateTotalDuration(recordsWithWork, settings)
+        // target (8h) + work (2h) = 10h
+        expect(totalWithWork).toBe(10 * 60 * 60 * 1000)
+    })
 })
+

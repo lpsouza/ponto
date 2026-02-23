@@ -21,10 +21,11 @@ As a Trust Position Professional, I want to freely register when I enter and lea
 - [x] **Manual Entry**: Form to add records with specific types.
 - [x] **Timeline**: Show today's records in **chronological order** (earliest to latest), clearly displaying work blocks and any open (active) block at the end.
 - [x] **Edit Interface**: Editing and manual entry should be presented in a clear, accessible modal with distinct actions (Save, Cancel, Delete).
-- [ ] **Day Status Actions**: Button/Menu on the day's timeline to mark the day as:
+- [x] **Day Status Actions**: Button/Menu on the day's timeline to mark the day as:
     - **Feriado**: Resets daily target to 0 for the selected company.
     - **Folga (compensada)**: Indicates usage of banked hours for the day.
     - **Folga (abonada)**: Indicates justified absence without bank deduction.
+
 
 ### 3.2 Work Blocks
 
@@ -34,7 +35,7 @@ As a Trust Position Professional, I want to freely register when I enter and lea
 - [x] **Schema Support**: The database supports `start`, `pause`, `resume`, `finish` to accommodate future features or legacy data, though the current UI focuses on start/finish flows.
 - [x] **TimeRecords Collection**: Users can CRUD records where `user` matches their ID.
 - [x] **No blocking**: Users can freely add entries and exits in any order, edit past records, and delete them. The system does not enforce sequential rules.
-- [ ] **Leave Registration**: Explicitly register "Abonos" (Paid Leave) to compensate work days without work blocks (Specifying duration and reason).
+- [x] **Leave Registration**: Explicitly register "Abonos" (Paid Leave) to compensate work days without work blocks (Specifying duration and reason).
 
 ### 3.3 Context & Location
 
@@ -51,8 +52,9 @@ As a Trust Position Professional, I want to freely register when I enter and lea
 
 ### 3.5 Offline Persistence & Sync
 
-- [ ] **Strategy**: Optimistic UI. Save locally, sync when possible (Pending).
-- [ ] **Conflict Resolution**: Last edit wins (User trusted) (Pending).
+- [x] **Strategy**: Optimistic UI. Save locally, sync when possible (Vite PWA).
+- [x] **Conflict Resolution**: Last edit wins (User trusted).
+
 
 ### 3.6 Data Model
 
