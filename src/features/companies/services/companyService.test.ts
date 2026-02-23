@@ -41,7 +41,7 @@ describe('companyService', () => {
         const companyData = { name: 'New Company', settings: { hours: 8 } }
         mockCollection.create.mockResolvedValue({ id: 'new-id', ...companyData })
 
-        const result = await companyService.createCompany(companyData.name, companyData.settings)
+        const result = await companyService.createCompany(companyData.name, companyData.settings as any)
 
         expect(mockCollection.create).toHaveBeenCalledWith({
             name: companyData.name,
@@ -70,7 +70,7 @@ describe('companyService', () => {
     it('should update a company', async () => {
         mockCollection.update.mockResolvedValue({ id: '1', name: 'Updated' })
 
-        const result = await companyService.updateCompany('1', 'Updated', { hours: 9 })
+        const result = await companyService.updateCompany('1', 'Updated', { hours: 9 } as any)
 
         expect(mockCollection.update).toHaveBeenCalledWith('1', {
             name: 'Updated',
@@ -87,4 +87,15 @@ describe('companyService', () => {
         expect(mockCollection.delete).toHaveBeenCalledWith('1')
         expect(result).toBe(true)
     })
+
+    it('should update company settings', async () => {
+        const settings = { daily_target_ms: 28800000 } as any
+        mockCollection.update.mockResolvedValue({ id: '1', settings })
+
+        const result = await companyService.updateSettings('1', settings)
+
+        expect(mockCollection.update).toHaveBeenCalledWith('1', { settings })
+        expect(result.settings).toEqual(settings)
+    })
 })
+

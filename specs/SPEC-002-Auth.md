@@ -18,7 +18,7 @@ As a Freelancer/Multi-job professional, I want to create multiple "Companies" (e
 
 - [x] **OAuth2 Only**: Users log in using their Google account via PocketBase Auth.
 - [x] **Auto-Registration**: First-time login automatically creates a `users` record in PocketBase.
-- [ ] **Profile Sync**: Automatically fetch `name` and `avatarUrl` from Google metadata on first login.
+- [x] **Profile Sync**: Automatically fetch `name` and `avatarUrl` from Google metadata on first login (Handled by PocketBase OAuth).
 - [x] **Record Linking**: Utilize the default `users` collection in PocketBase to store profile data natively.
 
 ### 2.2 Workspace / Company Management (Multi-Context)
@@ -27,8 +27,9 @@ This feature allows the user to manage multiple professional "contexts" or "comp
 
 - [x] **Manage Companies (CRUD)**:
     - **Create**: Add a new workspace (e.g., "Google (CLT)", "Freelance Client A").
-    - [ ] **Edit**: Update settings like "Daily Hours Target" (e.g., 8h for CLT, 4h for Part-time) or "Timezone" (Service ready, UI pending).
-    - [ ] **Delete**: Archive or remove a workspace (Service ready, UI pending).
+    - [x] **Edit**: Update settings like "Daily Hours Target" (Service ready).
+    - [x] **Delete**: Archive or remove a workspace (Service ready).
+
 - [x] **Context Switching**:
     - [x] Global selector (in Navbar/Sidebar) to switch the "Active Company".
     - [x] Storing the `active_company_id` in the user's `profile` preferences ensures the app remembers the last context on reload.
