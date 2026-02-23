@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { isToday, shiftDate, formatDateForInput, formatTimeForInput, parseDateTime, getLocalDateString, formatForPB, parsePBDate } from './dateUtils'
+import { isToday, shiftDate, formatDateForInput, formatTimeForInput, parseDateTime, getLocalDateString, formatForPB, parsePBDate, isWeekend, getMinutesFromTime, calculateTimeOverlap } from './dateUtils'
 
 describe('dateUtils', () => {
     beforeEach(() => {
@@ -10,7 +10,6 @@ describe('dateUtils', () => {
     afterEach(() => {
         vi.useRealTimers()
     })
-
     describe('isToday', () => {
         it('should return true for today', () => {
             expect(isToday(new Date())).toBe(true)
@@ -93,4 +92,74 @@ describe('dateUtils', () => {
             expect(date).toBeInstanceOf(Date)
         })
     })
+
+    describe('isWeekend', () => {
+        it('should return true for Saturday', () => {
+            const saturday = new Date('2026-02-21T10:00:00Z')
+            expect(isWeekend(saturday)).toBe(true)
+        })
+
+        it('should return true for Sunday', () => {
+            const sunday = new Date('2026-02-22T10:00:00Z')
+            expect(isWeekend(sunday)).toBe(true)
+        })
+
+        it('should return false for Monday', () => {
+            const monday = new Date('2026-02-23T10:00:00Z')
+            expect(isWeekend(monday)).toBe(false)
+        })
+    })
+
+    describe('getMinutesFromTime', () => {
+        it('should return minutes from start of day', () => {
+            expect(getMinutesFromTime('08:30')).toBe(510)
+            expect(getMinutesFromTime('14:45')).toBe(885)
+            expect(getMinutesFromTime('00:00')).toBe(0)
+            expect(getMinutesFromTime('23:59')).toBe(1439)
+        })
+    })
+
+    describe('calculateTimeOverlap', () => {
+        const rangeStart = '08:00'
+        const rangeEnd = '18:00'
+
+        it('should calculate partial overlap', () => {
+            const start = new Date(2026, 1, 21, 7, 0)
+            const end = new Date(2026, 1, 21, 9, 0)
+            const overlap = calculateTimeOverlap(start, end, rangeStart, rangeEnd)
+            expect(overlap).toBe(60 * 60 * 1000) // 1 hour (08:00 to 09:00)
+        })
+
+        it('should calculate full overlap', () => {
+            const start = new Date(2026, 1, 21, 9, 0)
+            const end = new Date(2026, 1, 21, 17, 0)
+            const overlap = calculateTimeOverlap(start, end, rangeStart, rangeEnd)
+            expect(overlap).toBe(8 * 60 * 60 * 1000)
+        })
+
+        it('should calculate zero overlap', () => {
+            const start = new Date(2026, 1, 21, 19, 0)
+            const end = new Date(2026, 1, 21, 21, 0)
+            const overlap = calculateTimeOverlap(start, end, rangeStart, rangeEnd)
+            expect(overlap).toBe(0)
+        })
+
+        it('should handle ranges crossing midnight', () => {
+            const nightShiftStart = '22:00'
+            const nightShiftEnd = '06:00'
+            const start = new Date(2026, 1, 21, 23, 0)
+            const end = new Date(2026, 1, 22, 1, 0)
+            const overlap = calculateTimeOverlap(start, end, nightShiftStart, nightShiftEnd)
+            expect(overlap).toBe(2 * 60 * 60 * 1000)
+        })
+
+        it('should handle block crossing midnight in normal range', () => {
+            const start = new Date(2026, 1, 21, 23, 0)
+            const end = new Date(2026, 1, 22, 9, 0)
+            const overlap = calculateTimeOverlap(start, end, '08:00', '18:00')
+            expect(overlap).toBe(60 * 60 * 1000) // 08:00 to 09:00 on the next day
+        })
+    })
+
 })
+

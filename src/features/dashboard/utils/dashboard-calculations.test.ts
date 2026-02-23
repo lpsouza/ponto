@@ -124,4 +124,27 @@ describe('calculateDashboardStats', () => {
         const stats = calculateDashboardStats(records, startDate, endDate)
         expect(stats.dailySummaries[0].isBurnoutRisk).toBe(true)
     })
+
+    it('should handle days without records and identify absences', () => {
+        const startDate = new Date(2024, 2, 4) // Monday
+        const endDate = new Date(2024, 2, 4)
+        const settings = {
+            work_days: [1, 2, 3, 4, 5],
+            daily_target_ms: 8 * 60 * 60 * 1000,
+            holidays: [],
+            multipliers: {}
+        }
+
+        const stats = calculateDashboardStats([], startDate, endDate, settings as any)
+        expect(stats.dailySummaries[0].type).toBe('absence')
+        expect(stats.dailySummaries[0].balance).toBe(-8 * 60 * 60 * 1000)
+
+        // Sunday
+        const sunStart = new Date(2024, 2, 3)
+        const sunEnd = new Date(2024, 2, 3)
+        const sunStats = calculateDashboardStats([], sunStart, sunEnd, settings as any)
+        expect(sunStats.dailySummaries[0].type).toBe('work') // It's a non-work day, so it stays as work type but with 0 target
+        expect(sunStats.dailySummaries[0].balance).toBe(0)
+    })
 })
+

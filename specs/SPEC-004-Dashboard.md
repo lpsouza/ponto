@@ -21,15 +21,16 @@ As a user, I want to visualize my Time Balance (Bank) to know if I'm overworking
 - [x] **Timeline**: Visual bar showing Work vs Breaks.
 - [x] **Metric**: "Balance Today" (e.g., +0:30h or -1:00h against strict 8h target).
 - [x] **Burnout Warning**: Visual alert if working > 10h/day frequently.
-- [ ] **Persistent Bank**: Calculate balance cumulatively from the first record, considering absences on work days.
-- [ ] **Global Balance**: Highlight the current total bank balance (+/-) in the main view.
+- [x] **Persistent Bank**: Calculate balance cumulatively from the first record, considering absences on work days.
+- [x] **Global Balance**: Highlight the current total bank balance (+/-) in the main view.
+
 
 ### 4.2 Reports
 
 - [x] **Monthly Heatmap**: Visual grid showing intensity of work days.
 - [x] **Net Balance**: Total accumulated hours (+/-) in the period.
 - [x] **Export**: Ability to export to simple CSV for personal control.
-- [ ] **Bank Statement**: A list or view showing the daily evolution of the bank (Target vs Worked vs Balance).
+- [x] **Bank Statement**: A list or view showing the daily evolution of the bank (Target vs Worked vs Balance).
 - [ ] **Work Configuration**: Interface to edit company work days, target hours, and holidays.
 
 ## Testing
