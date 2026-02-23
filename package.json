@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
+    "dev": "npm run pb:up && vite --host",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -15,9 +15,8 @@
     "pb:up": "docker compose -f docker-compose.dev.yml up -d",
     "pb:upgrade": "docker compose -f docker-compose.dev.yml up -d --build",
     "pb:down": "docker compose -f docker-compose.dev.yml down --remove-orphans",
-    "pb:restart": "docker compose -f docker-compose.dev.yml restart pb",
+    "pb:restart": "docker compose -f docker-compose.dev.yml restart",
     "pb:logs": "docker compose -f docker-compose.dev.yml logs -f",
-    "pb:admin": "echo 'Admin creation is now handled by migrations.'",
     "pb:clean": "docker compose -f docker-compose.dev.yml down -v --remove-orphans",
     "pb:setup": "npm run pb:down && npm run pb:up",
     "pb:reset": "npm run pb:clean && npm run pb:up"

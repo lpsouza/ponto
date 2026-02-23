@@ -8,29 +8,37 @@ migrate((app) => {
             return;
         }
 
-        const collection = app.findCollectionByNameOrId("_pb_users_auth_");
+        const collection = app.findCollectionByNameOrId("_superusers");
 
-        // Count existing records
+        // 1. Ensure password auth is enabled
+        unmarshal({
+            "passwordAuth": {
+                "enabled": true
+            }
+        }, collection);
+        app.save(collection);
+
+        // 2. Count existing records in the _superusers collection
         let totalAdmins = 0;
         try {
-            const records = app.findRecordsByFilter("_pb_users_auth_", "email != ''", "", 1, 0);
+            const records = app.findRecordsByFilter("_superusers", "email != ''", "", 1, 0);
             totalAdmins = records.length;
         } catch (e) {
-            // Probably empty or table doesn't exist yet in a weird state
+            // Probably empty
         }
 
         if (totalAdmins === 0) {
-            console.log(`Creating initial superuser: ${adminEmail}`);
+            console.log(`Creating initial superuser in _superusers: ${adminEmail}`);
             const record = new Record(collection);
 
             record.set("email", adminEmail);
-            record.set("password", adminPass);
-            record.set("passwordConfirm", adminPass);
+            record.setPassword(adminPass);
+            record.set("verified", true);
 
             app.save(record);
             console.log("Initial superuser created successfully.");
         } else {
-            console.log("Superusers already exist. Skipping initial creation.");
+            console.log("Superusers already exist in _superusers. Skipping initial creation.");
         }
     } catch (err) {
         console.log("Error creating initial superuser: " + err);
